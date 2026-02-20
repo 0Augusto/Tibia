@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Dano - Tibia (Web)</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #1e1e2f; color: #ddd; max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        h1, h2, h3 { color: #f0b87b; }
+        .container { background: #2a2a3a; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
+        .param-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .param-item { display: flex; flex-direction: column; }
+        label { font-size: 0.9em; color: #aaa; margin-bottom: 3px; }
+        input, select { background: #1e1e2f; border: 1px solid #3a3a4f; color: #fff; padding: 8px; border-radius: 5px; font-size: 1em; }
+        input:focus, select:focus { outline: none; border-color: #f0b87b; }
+        button { background: #f0b87b; color: #1e1e2f; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-right: 10px; margin-bottom: 10px; }
+        button:hover { background: #ffd966; }
+        .result-box { background: #1e1e2f; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 5px solid #f0b87b; font-size: 1.1em; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1e1e2f; border-radius: 8px; overflow: hidden; }
+        th { background: #3a3a4f; color: #f0b87b; padding: 10px; font-weight: 600; }
+        td { padding: 8px; border-bottom: 1px solid #3a3a4f; }
+        td input, td select { width: 100%; background: #252535; border: 1px solid #3a3a4f; }
+        .action-btn { background: #4a4a6a; color: white; padding: 5px 10px; font-size: 0.9em; margin: 2px; }
+        .action-btn:hover { background: #6a6a8a; }
+        .total-footer { background: #3a3a4f; padding: 15px; border-radius: 8px; margin-top: 20px; font-size: 1.2em; text-align: center; }
+        .credits { text-align: right; margin-top: 10px; color: #888; font-style: italic; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>⚔️ Calculadora de Dano - Tibia</h1>
+    <p style="color:#ccc;">Configure seu personagem e os monstros da hunt para calcular o dano por hora.</p>
+
+    <!-- Parâmetros do personagem -->
+    <div class="param-grid">
+        <div class="param-item">
+            <label>Ataque Base (Attack Value)</label>
+            <input type="number" id="attackBase" value="318" step="1">
+        </div>
+        <div class="param-item">
+            <label>Dano Extra Auto (Shielding)</label>
+            <input type="number" id="autoExtra" value="9" step="1">
+        </div>
+        <div class="param-item">
+            <label>Chance Crítico (%)</label>
+            <input type="number" id="critChance" value="10" step="0.1" min="0" max="100">
+        </div>
+        <div class="param-item">
+            <label>Dano Crítico Extra (%)</label>
+            <input type="number" id="critDamage" value="57.5" step="0.1">
+        </div>
+        <div class="param-item">
+            <label>Life Leech (%)</label>
+            <input type="number" id="lifeLeech" value="50.75" step="0.01">
+        </div>
+        <div class="param-item">
+            <label>Mana Leech (%)</label>
+            <input type="number" id="manaLeech" value="16.25" step="0.01">
+        </div>
+        <div class="param-item">
+            <label>Ataques por minuto</label>
+            <input type="number" id="attacksPerMin" value="30" step="1">
+        </div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <button id="calcAvgBtn">📊 Calcular Dano Médio</button>
+        <span id="avgResult" class="result-box" style="flex:1; margin:0;">Clique para calcular</span>
+    </div>
+
+    <!-- Tabela de monstros -->
+    <h2>👾 Monstros da Hunt Atual</h2>
+    <div style="margin-bottom: 10px;">
+        <button id="addRowBtn">➕ Adicionar Monstro</button>
+        <button id="removeRowBtn">➖ Remover Último</button>
+        <button id="calcTotalBtn">🔥 Calcular Totais</button>
+        <span style="margin-left: 20px; color:#aaa;">(Dados salvos automaticamente)</span>
+    </div>
+
+    <table id="monsterTable">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Qtd/h</th>
+                <th>Vida</th>
+                <th>Fraqueza (ex: 1.2)</th>
+                <th>Tipo de Runa</th>
+                <th>Dano por Mob</th>
+                <th>Total/h</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <!-- Linhas serão inseridas via JavaScript -->
+        </tbody>
+    </table>
+
+    <!-- Resultado total -->
+    <div class="total-footer" id="totalResult">
+        Dano Físico/h: 0 | Dano Runas/h: 0 | Dano Total/h: 0
+    </div>
+
+    <!-- Créditos -->
+    <div class="credits">Criado por Cedine Rush · Versão Web</div>
+</div>
+
+<script>
+    (function() {
+        // ----- Elementos do DOM -----
+        const attackBaseInput = document.getElementById('attackBase');
+        const autoExtraInput = document.getElementById('autoExtra');
+        const critChanceInput = document.getElementById('critChance');
+        const critDamageInput = document.getElementById('critDamage');
+        const lifeLeechInput = document.getElementById('lifeLeech');
+        const manaLeechInput = document.getElementById('manaLeech');
+        const attacksPerMinInput = document.getElementById('attacksPerMin');
+        const calcAvgBtn = document.getElementById('calcAvgBtn');
+        const avgResult = document.getElementById('avgResult');
+        const tableBody = document.getElementById('tableBody');
+        const addRowBtn = document.getElementById('addRowBtn');
+        const removeRowBtn = document.getElementById('removeRowBtn');
+        const calcTotalBtn = document.getElementById('calcTotalBtn');
+        const totalResult = document.getElementById('totalResult');
+
+        // ----- Estado: lista de monstros (array de objetos) -----
+        let monsters = [];
+
+        // ----- Chave do localStorage -----
+        const STORAGE_KEY = 'tibiaDamageMonsters';
+
+        // ----- Carregar dados salvos -----
+        function loadFromStorage() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    monsters = JSON.parse(saved);
+                } catch (e) {
+                    console.error('Erro ao carregar dados salvos', e);
+                    monsters = [];
+                }
+            }
+            // Se estiver vazio, colocar alguns exemplos
+            if (monsters.length === 0) {
+                monsters = [
+                    { name: 'Bulltaur Alchemist', qty: 614, hp: 5960, weakness: 1.2, runeType: 'Normal' },
+                    { name: 'Bulltaur Brute', qty: 607, hp: 6560, weakness: 1.1, runeType: 'Divine Wrath' },
+                    { name: 'Bulltaur Forgepriest', qty: 396, hp: 6840, weakness: 1.1, runeType: 'Freeze' }
+                ];
+            }
+        }
+
+        // ----- Salvar no localStorage -----
+        function saveToStorage() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(monsters));
+        }
+
+        // ----- Renderizar tabela com os monstros -----
+        function renderTable() {
+            tableBody.innerHTML = '';
+            monsters.forEach((m, index) => {
+                const row = document.createElement('tr');
+
+                // Nome
+                const tdName = document.createElement('td');
+                const nameInput = document.createElement('input');
+                nameInput.type = 'text';
+                nameInput.value = m.name || '';
+                nameInput.dataset.index = index;
+                nameInput.dataset.field = 'name';
+                nameInput.addEventListener('input', handleInputChange);
+                tdName.appendChild(nameInput);
+                row.appendChild(tdName);
+
+                // Quantidade
+                const tdQty = document.createElement('td');
+                const qtyInput = document.createElement('input');
+                qtyInput.type = 'number';
+                qtyInput.value = m.qty || 0;
+                qtyInput.step = 1;
+                qtyInput.dataset.index = index;
+                qtyInput.dataset.field = 'qty';
+                qtyInput.addEventListener('input', handleInputChange);
+                tdQty.appendChild(qtyInput);
+                row.appendChild(tdQty);
+
+                // Vida
+                const tdHp = document.createElement('td');
+                const hpInput = document.createElement('input');
+                hpInput.type = 'number';
+                hpInput.value = m.hp || 0;
+                hpInput.step = 1;
+                hpInput.dataset.index = index;
+                hpInput.dataset.field = 'hp';
+                hpInput.addEventListener('input', handleInputChange);
+                tdHp.appendChild(hpInput);
+                row.appendChild(tdHp);
+
+                // Fraqueza
+                const tdWeak = document.createElement('td');
+                const weakInput = document.createElement('input');
+                weakInput.type = 'number';
+                weakInput.value = m.weakness || 1.0;
+                weakInput.step = 0.01;
+                weakInput.dataset.index = index;
+                weakInput.dataset.field = 'weakness';
+                weakInput.addEventListener('input', handleInputChange);
+                tdWeak.appendChild(weakInput);
+                row.appendChild(tdWeak);
+
+                // Tipo de Runa
+                const tdRune = document.createElement('td');
+                const runeSelect = document.createElement('select');
+                runeSelect.dataset.index = index;
+                runeSelect.dataset.field = 'runeType';
+                const options = ['Normal', 'Low Blow', 'Savage Blow', 'Divine Wrath', 'Zap', 'Freeze'];
+                options.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt;
+                    option.textContent = opt;
+                    if (m.runeType === opt) option.selected = true;
+                    runeSelect.appendChild(option);
+                });
+                runeSelect.addEventListener('change', handleInputChange);
+                tdRune.appendChild(runeSelect);
+                row.appendChild(tdRune);
+
+                // Dano por Mob (calculado)
+                const tdDmgMob = document.createElement('td');
+                tdDmgMob.className = 'dmg-mob';
+                tdDmgMob.textContent = calculateRuneDamage(m).toFixed(2);
+                row.appendChild(tdDmgMob);
+
+                // Total/h (calculado)
+                const tdTotal = document.createElement('td');
+                tdTotal.className = 'total-mob';
+                tdTotal.textContent = (calculateRuneDamage(m) * (m.qty || 0)).toFixed(2);
+                row.appendChild(tdTotal);
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // ----- Calcular dano da runa baseado no monstro -----
+        function calculateRuneDamage(m) {
+            let mult = 0.05; // padrão normal
+            const rune = (m.runeType || '').toLowerCase();
+            if (rune.includes('low blow')) mult = 0.08;
+            else if (rune.includes('savage blow')) mult = 0.4;
+            return (m.hp || 0) * mult * (m.weakness || 1.0);
+        }
+
+        // ----- Atualiza os campos de dano na tabela após alterações -----
+        function updateDamageDisplays() {
+            const rows = tableBody.querySelectorAll('tr');
+            rows.forEach((row, index) => {
+                const mob = monsters[index];
+                if (!mob) return;
+                const dmgMob = calculateRuneDamage(mob);
+                const totalMob = dmgMob * (mob.qty || 0);
+                const tdDmg = row.querySelector('td:nth-child(6)');
+                const tdTotal = row.querySelector('td:nth-child(7)');
+                if (tdDmg) tdDmg.textContent = dmgMob.toFixed(2);
+                if (tdTotal) tdTotal.textContent = totalMob.toFixed(2);
+            });
+        }
+
+        // ----- Handler para quando um input é alterado -----
+        function handleInputChange(e) {
+            const input = e.target;
+            const index = input.dataset.index;
+            const field = input.dataset.field;
+            let value = input.value;
+            if (input.type === 'number' || input.tagName === 'SELECT') {
+                if (field === 'qty' || field === 'hp' || field === 'weakness') {
+                    value = parseFloat(value) || 0;
+                } else if (field === 'runeType') {
+                    value = input.value;
+                } else {
+                    value = value; // string para nome
+                }
+            }
+            if (monsters[index]) {
+                monsters[index][field] = value;
+                saveToStorage();
+                updateDamageDisplays();
+            }
+        }
+
+        // ----- Adicionar nova linha -----
+        addRowBtn.addEventListener('click', () => {
+            monsters.push({
+                name: 'Novo Monstro',
+                qty: 100,
+                hp: 5000,
+                weakness: 1.0,
+                runeType: 'Normal'
+            });
+            saveToStorage();
+            renderTable();
+        });
+
+        // ----- Remover última linha -----
+        removeRowBtn.addEventListener('click', () => {
+            if (monsters.length > 0) {
+                monsters.pop();
+                saveToStorage();
+                renderTable();
+            }
+        });
+
+        // ----- Calcular dano médio do personagem -----
+        function calcAverageDamage() {
+            const base = parseFloat(attackBaseInput.value) + parseFloat(autoExtraInput.value);
+            const critChance = parseFloat(critChanceInput.value) / 100;
+            const critExtra = parseFloat(critDamageInput.value) / 100;
+
+            const normal = base;
+            const crit = base * (1 + critExtra);
+            const avg = (1 - critChance) * normal + critChance * crit;
+
+            const lifeLeech = avg * (parseFloat(lifeLeechInput.value) / 100);
+            const manaLeech = avg * (parseFloat(manaLeechInput.value) / 100);
+
+            avgResult.innerHTML = `Dano médio/ataque: <strong>${avg.toFixed(2)}</strong><br>` +
+                                  `Life Leech: ${lifeLeech.toFixed(2)} | Mana Leech: ${manaLeech.toFixed(2)}`;
+
+            return { avg, lifeLeech, manaLeech };
+        }
+
+        calcAvgBtn.addEventListener('click', calcAverageDamage);
+
+        // ----- Calcular totais por hora -----
+        calcTotalBtn.addEventListener('click', () => {
+            const avgData = calcAverageDamage(); // já atualiza o display
+            const attacksPerHour = parseFloat(attacksPerMinInput.value) * 60;
+            const physDamage = avgData.avg * attacksPerHour;
+
+            let runeDamageTotal = 0;
+            monsters.forEach(m => {
+                runeDamageTotal += calculateRuneDamage(m) * (m.qty || 0);
+            });
+
+            const total = physDamage + runeDamageTotal;
+
+            totalResult.innerHTML = `Dano Físico/h: <strong>${physDamage.toFixed(0)}</strong> | ` +
+                                    `Dano Runas/h: <strong>${runeDamageTotal.toFixed(0)}</strong> | ` +
+                                    `Dano Total/h: <strong>${total.toFixed(0)}</strong>`;
+        });
+
+        // ----- Inicialização -----
+        loadFromStorage();
+        renderTable();
+        // Calcular dano médio inicial (opcional)
+        setTimeout(() => calcAverageDamage(), 100);
+    })();
+</script>
+</body>
+</html>
