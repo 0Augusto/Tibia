@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Dano - Tibia (Web)</title>
+    <title>Calculadora de Dano - Tibia (Hunts completas)</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: #1e1e2f; color: #ddd; max-width: 1200px; margin: 20px auto; padding: 0 20px; }
@@ -25,12 +25,26 @@
         .action-btn:hover { background: #6a6a8a; }
         .total-footer { background: #3a3a4f; padding: 15px; border-radius: 8px; margin-top: 20px; font-size: 1.2em; text-align: center; }
         .credits { text-align: right; margin-top: 10px; color: #888; font-style: italic; }
+        .hunt-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .hunt-bar select { flex: 1; min-width: 200px; }
+        .admin-note { font-size: 0.9em; color: #f0b87b; margin-left: 10px; }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>⚔️ Calculadora de Dano - Tibia</h1>
-    <p style="color:#ccc;">Configure seu personagem e os monstros da hunt para calcular o dano por hora.</p>
+    <h1>⚔️ Calculadora de Dano - Tibia (Hunts completas)</h1>
+    <p style="color:#ccc;">Gerencie múltiplas hunts e calcule o dano por hora com base nos atributos do seu personagem.</p>
+    <p style="color:#aaa;">🔒 A exclusão de hunts é restrita ao administrador. Para ativar o modo admin, adicione <code>?admin=true</code> na URL.</p>
+
+    <!-- Gerenciamento de Hunts -->
+    <div class="hunt-bar">
+        <label for="huntSelect" style="font-weight:bold;">Hunt atual:</label>
+        <select id="huntSelect"></select>
+        <button id="newHuntBtn">➕ Nova</button>
+        <button id="renameHuntBtn">✏️ Renomear</button>
+        <button id="deleteHuntBtn" style="display:none;">🗑️ Excluir (admin)</button>
+        <span class="admin-note" id="adminIndicator"></span>
+    </div>
 
     <!-- Parâmetros do personagem -->
     <div class="param-grid">
@@ -69,8 +83,8 @@
         <span id="avgResult" class="result-box" style="flex:1; margin:0;">Clique para calcular</span>
     </div>
 
-    <!-- Tabela de monstros -->
-    <h2>👾 Monstros da Hunt Atual</h2>
+    <!-- Tabela de monstros da hunt atual -->
+    <h2>👾 Monstros da Hunt</h2>
     <div style="margin-bottom: 10px;">
         <button id="addRowBtn">➕ Adicionar Monstro</button>
         <button id="removeRowBtn">➖ Remover Último</button>
@@ -101,7 +115,7 @@
     </div>
 
     <!-- Créditos -->
-    <div class="credits">Criado por Cedine Rush · Versão Web</div>
+    <div class="credits">Criado por Cedine Rush · Versão Web Completa</div>
 </div>
 
 <script>
@@ -121,41 +135,142 @@
         const removeRowBtn = document.getElementById('removeRowBtn');
         const calcTotalBtn = document.getElementById('calcTotalBtn');
         const totalResult = document.getElementById('totalResult');
+        const huntSelect = document.getElementById('huntSelect');
+        const newHuntBtn = document.getElementById('newHuntBtn');
+        const renameHuntBtn = document.getElementById('renameHuntBtn');
+        const deleteHuntBtn = document.getElementById('deleteHuntBtn');
+        const adminIndicator = document.getElementById('adminIndicator');
 
-        // ----- Estado: lista de monstros (array de objetos) -----
-        let monsters = [];
+        // ----- Verificar se é admin (parâmetro ?admin=true na URL) -----
+        const urlParams = new URLSearchParams(window.location.search);
+        const isAdmin = urlParams.get('admin') === 'true';
+        if (isAdmin) {
+            deleteHuntBtn.style.display = 'inline-block';
+            adminIndicator.textContent = '🔓 Modo administrador ativo';
+        } else {
+            deleteHuntBtn.style.display = 'none';
+            adminIndicator.textContent = '';
+        }
 
-        // ----- Chave do localStorage -----
-        const STORAGE_KEY = 'tibiaDamageMonsters';
+        // ----- Estrutura de dados -----
+        let hunts = [];                // array de { id, name, monsters }
+        let currentHuntId = null;
 
-        // ----- Carregar dados salvos -----
+        const STORAGE_KEY = 'tibiaDamageHunts';
+
+        // ----- Utilitários -----
+        function generateId() {
+            return Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // ----- Persistência -----
         function loadFromStorage() {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
                 try {
-                    monsters = JSON.parse(saved);
+                    const data = JSON.parse(saved);
+                    hunts = data.hunts || [];
+                    currentHuntId = data.currentHuntId || (hunts.length > 0 ? hunts[0].id : null);
                 } catch (e) {
-                    console.error('Erro ao carregar dados salvos', e);
-                    monsters = [];
+                    console.error('Erro ao carregar dados', e);
+                    resetToExamples();
                 }
+            } else {
+                resetToExamples();
             }
-            // Se estiver vazio, colocar alguns exemplos
-            if (monsters.length === 0) {
-                monsters = [
-                    { name: 'Bulltaur Alchemist', qty: 614, hp: 5960, weakness: 1.2, runeType: 'Normal' },
-                    { name: 'Bulltaur Brute', qty: 607, hp: 6560, weakness: 1.1, runeType: 'Divine Wrath' },
-                    { name: 'Bulltaur Forgepriest', qty: 396, hp: 6840, weakness: 1.1, runeType: 'Freeze' }
-                ];
+            // Garantir que cada hunt tenha um array de monsters
+            hunts.forEach(h => { if (!h.monsters) h.monsters = []; });
+            if (hunts.length === 0) resetToExamples();
+            if (!currentHuntId || !hunts.find(h => h.id === currentHuntId)) {
+                if (hunts.length > 0) currentHuntId = hunts[0].id;
             }
         }
 
-        // ----- Salvar no localStorage -----
+        function resetToExamples() {
+            // Cria hunts de exemplo (mesmas do código Python)
+            hunts = [
+                {
+                    id: generateId(),
+                    name: 'Bulltaur Lair',
+                    monsters: [
+                        { name: 'Bulltaur Alchemist', qty: 614, hp: 5960, weakness: 1.2, runeType: 'Normal' },
+                        { name: 'Bulltaur Brute', qty: 607, hp: 6560, weakness: 1.1, runeType: 'Divine Wrath' },
+                        { name: 'Bulltaur Forgepriest', qty: 396, hp: 6840, weakness: 1.1, runeType: 'Freeze' }
+                    ]
+                },
+                {
+                    id: generateId(),
+                    name: 'Goannas',
+                    monsters: [
+                        { name: 'Adult Goanna', qty: 359, hp: 8300, weakness: 1.2, runeType: 'Zap' },
+                        { name: 'Manticore', qty: 340, hp: 6700, weakness: 1.2, runeType: 'Freeze' },
+                        { name: 'Young Goanna', qty: 319, hp: 6944, weakness: 1.2, runeType: 'Zap' },
+                        { name: 'Feral Sphinx', qty: 292, hp: 9800, weakness: 1.15, runeType: 'Freeze' }
+                    ]
+                },
+                {
+                    id: generateId(),
+                    name: 'Oramond',
+                    monsters: [
+                        { name: 'Dark Torturer', qty: 171, hp: 7350, weakness: 1.1, runeType: 'Divine Wrath' },
+                        { name: 'Grim Reaper', qty: 206, hp: 3900, weakness: 1.0, runeType: 'Zap' },
+                        { name: 'Destroyer', qty: 222, hp: 3700, weakness: 1.0, runeType: 'Low Blow' },
+                        { name: 'Hellspawn', qty: 269, hp: 3500, weakness: 1.0, runeType: 'Savage Blow' }
+                    ]
+                }
+            ];
+            currentHuntId = hunts[0].id;
+        }
+
         function saveToStorage() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(monsters));
+            const data = { hunts, currentHuntId };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
         }
 
-        // ----- Renderizar tabela com os monstros -----
+        // ----- Atualizar o combobox de hunts -----
+        function renderHuntSelect() {
+            huntSelect.innerHTML = '';
+            hunts.forEach(h => {
+                const option = document.createElement('option');
+                option.value = h.id;
+                option.textContent = h.name;
+                if (h.id === currentHuntId) option.selected = true;
+                huntSelect.appendChild(option);
+            });
+        }
+
+        // ----- Obter a hunt atual -----
+        function getCurrentHunt() {
+            return hunts.find(h => h.id === currentHuntId) || null;
+        }
+
+        // ----- Obter os monstros da hunt atual -----
+        function getCurrentMonsters() {
+            const hunt = getCurrentHunt();
+            return hunt ? hunt.monsters : [];
+        }
+
+        // ----- Salvar os monstros da hunt atual -----
+        function setCurrentMonsters(monsters) {
+            const hunt = getCurrentHunt();
+            if (hunt) {
+                hunt.monsters = monsters;
+                saveToStorage();
+            }
+        }
+
+        // ----- Calcular dano da runa baseado no monstro -----
+        function calculateRuneDamage(m) {
+            let mult = 0.05; // padrão normal
+            const rune = (m.runeType || '').toLowerCase();
+            if (rune.includes('low blow')) mult = 0.08;
+            else if (rune.includes('savage blow')) mult = 0.4;
+            return (m.hp || 0) * mult * (m.weakness || 1.0);
+        }
+
+        // ----- Renderizar tabela de monstros da hunt atual -----
         function renderTable() {
+            const monsters = getCurrentMonsters();
             tableBody.innerHTML = '';
             monsters.forEach((m, index) => {
                 const row = document.createElement('tr');
@@ -212,6 +327,7 @@
                 const runeSelect = document.createElement('select');
                 runeSelect.dataset.index = index;
                 runeSelect.dataset.field = 'runeType';
+                // Opções: incluímos os principais tipos, mas o multiplicador é definido pela palavra "low blow" ou "savage blow"
                 const options = ['Normal', 'Low Blow', 'Savage Blow', 'Divine Wrath', 'Zap', 'Freeze'];
                 options.forEach(opt => {
                     const option = document.createElement('option');
@@ -240,17 +356,9 @@
             });
         }
 
-        // ----- Calcular dano da runa baseado no monstro -----
-        function calculateRuneDamage(m) {
-            let mult = 0.05; // padrão normal
-            const rune = (m.runeType || '').toLowerCase();
-            if (rune.includes('low blow')) mult = 0.08;
-            else if (rune.includes('savage blow')) mult = 0.4;
-            return (m.hp || 0) * mult * (m.weakness || 1.0);
-        }
-
         // ----- Atualiza os campos de dano na tabela após alterações -----
         function updateDamageDisplays() {
+            const monsters = getCurrentMonsters();
             const rows = tableBody.querySelectorAll('tr');
             rows.forEach((row, index) => {
                 const mob = monsters[index];
@@ -275,19 +383,21 @@
                     value = parseFloat(value) || 0;
                 } else if (field === 'runeType') {
                     value = input.value;
-                } else {
-                    value = value; // string para nome
                 }
+                // Se for número e NaN, define 0
+                if (isNaN(value)) value = 0;
             }
+            const monsters = getCurrentMonsters();
             if (monsters[index]) {
                 monsters[index][field] = value;
-                saveToStorage();
+                setCurrentMonsters(monsters);
                 updateDamageDisplays();
             }
         }
 
-        // ----- Adicionar nova linha -----
+        // ----- Adicionar nova linha à hunt atual -----
         addRowBtn.addEventListener('click', () => {
+            const monsters = getCurrentMonsters();
             monsters.push({
                 name: 'Novo Monstro',
                 qty: 100,
@@ -295,15 +405,16 @@
                 weakness: 1.0,
                 runeType: 'Normal'
             });
-            saveToStorage();
+            setCurrentMonsters(monsters);
             renderTable();
         });
 
-        // ----- Remover última linha -----
+        // ----- Remover última linha da hunt atual -----
         removeRowBtn.addEventListener('click', () => {
+            const monsters = getCurrentMonsters();
             if (monsters.length > 0) {
                 monsters.pop();
-                saveToStorage();
+                setCurrentMonsters(monsters);
                 renderTable();
             }
         });
@@ -331,10 +442,11 @@
 
         // ----- Calcular totais por hora -----
         calcTotalBtn.addEventListener('click', () => {
-            const avgData = calcAverageDamage(); // já atualiza o display
+            const avgData = calcAverageDamage();
             const attacksPerHour = parseFloat(attacksPerMinInput.value) * 60;
             const physDamage = avgData.avg * attacksPerHour;
 
+            const monsters = getCurrentMonsters();
             let runeDamageTotal = 0;
             monsters.forEach(m => {
                 runeDamageTotal += calculateRuneDamage(m) * (m.qty || 0);
@@ -347,10 +459,75 @@
                                     `Dano Total/h: <strong>${total.toFixed(0)}</strong>`;
         });
 
+        // ----- Trocar de hunt -----
+        function switchHunt(huntId) {
+            if (!huntId) return;
+            currentHuntId = huntId;
+            saveToStorage();
+            renderHuntSelect();
+            renderTable();
+        }
+
+        huntSelect.addEventListener('change', (e) => {
+            switchHunt(e.target.value);
+        });
+
+        // ----- Nova hunt (permitida para todos) -----
+        newHuntBtn.addEventListener('click', () => {
+            const name = prompt('Nome da nova hunt:');
+            if (name && name.trim()) {
+                const newHunt = {
+                    id: generateId(),
+                    name: name.trim(),
+                    monsters: []
+                };
+                hunts.push(newHunt);
+                currentHuntId = newHunt.id;
+                saveToStorage();
+                renderHuntSelect();
+                renderTable();
+            }
+        });
+
+        // ----- Renomear hunt atual (permitido para todos) -----
+        renameHuntBtn.addEventListener('click', () => {
+            const hunt = getCurrentHunt();
+            if (!hunt) return;
+            const newName = prompt('Novo nome para a hunt:', hunt.name);
+            if (newName && newName.trim()) {
+                hunt.name = newName.trim();
+                saveToStorage();
+                renderHuntSelect();
+            }
+        });
+
+        // ----- Excluir hunt atual (apenas admin) -----
+        deleteHuntBtn.addEventListener('click', () => {
+            if (!isAdmin) {
+                alert('Apenas o administrador pode excluir hunts.');
+                return;
+            }
+            if (hunts.length <= 1) {
+                alert('Não é possível excluir a única hunt.');
+                return;
+            }
+            const hunt = getCurrentHunt();
+            if (!hunt) return;
+            const confirm = window.confirm(`Deseja realmente excluir a hunt "${hunt.name}"?`);
+            if (confirm) {
+                hunts = hunts.filter(h => h.id !== hunt.id);
+                currentHuntId = hunts[0].id;
+                saveToStorage();
+                renderHuntSelect();
+                renderTable();
+            }
+        });
+
         // ----- Inicialização -----
         loadFromStorage();
+        renderHuntSelect();
         renderTable();
-        // Calcular dano médio inicial (opcional)
+        // Calcular dano médio inicial
         setTimeout(() => calcAverageDamage(), 100);
     })();
 </script>
