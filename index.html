@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Dano - Tibia (Completa)</title>
+    <title>Calculadora de Dano - Tibia (Hunts completas)</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: #1e1e2f; color: #ddd; max-width: 1200px; margin: 20px auto; padding: 0 20px; }
@@ -27,12 +27,14 @@
         .credits { text-align: right; margin-top: 10px; color: #888; font-style: italic; }
         .hunt-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .hunt-bar select { flex: 1; min-width: 200px; }
+        .admin-note { font-size: 0.9em; color: #f0b87b; margin-left: 10px; }
     </style>
 </head>
 <body>
 <div class="container">
     <h1>⚔️ Calculadora de Dano - Tibia (Hunts completas)</h1>
     <p style="color:#ccc;">Gerencie múltiplas hunts e calcule o dano por hora com base nos atributos do seu personagem.</p>
+    <p style="color:#aaa;">🔒 A exclusão de hunts é restrita ao administrador. Para ativar o modo admin, adicione <code>?admin=true</code> na URL.</p>
 
     <!-- Gerenciamento de Hunts -->
     <div class="hunt-bar">
@@ -40,7 +42,8 @@
         <select id="huntSelect"></select>
         <button id="newHuntBtn">➕ Nova</button>
         <button id="renameHuntBtn">✏️ Renomear</button>
-        <button id="deleteHuntBtn">🗑️ Excluir</button>
+        <button id="deleteHuntBtn" style="display:none;">🗑️ Excluir (admin)</button>
+        <span class="admin-note" id="adminIndicator"></span>
     </div>
 
     <!-- Parâmetros do personagem -->
@@ -136,6 +139,18 @@
         const newHuntBtn = document.getElementById('newHuntBtn');
         const renameHuntBtn = document.getElementById('renameHuntBtn');
         const deleteHuntBtn = document.getElementById('deleteHuntBtn');
+        const adminIndicator = document.getElementById('adminIndicator');
+
+        // ----- Verificar se é admin (parâmetro ?admin=true na URL) -----
+        const urlParams = new URLSearchParams(window.location.search);
+        const isAdmin = urlParams.get('admin') === 'true';
+        if (isAdmin) {
+            deleteHuntBtn.style.display = 'inline-block';
+            adminIndicator.textContent = '🔓 Modo administrador ativo';
+        } else {
+            deleteHuntBtn.style.display = 'none';
+            adminIndicator.textContent = '';
+        }
 
         // ----- Estrutura de dados -----
         let hunts = [];                // array de { id, name, monsters }
@@ -341,7 +356,7 @@
             });
         }
 
-        // ----- Atualiza os campos de dano na tabelapós alterações -----
+        // ----- Atualiza os campos de dano na tabela após alterações -----
         function updateDamageDisplays() {
             const monsters = getCurrentMonsters();
             const rows = tableBody.querySelectorAll('tr');
@@ -457,7 +472,7 @@
             switchHunt(e.target.value);
         });
 
-        // ----- Nova hunt -----
+        // ----- Nova hunt (permitida para todos) -----
         newHuntBtn.addEventListener('click', () => {
             const name = prompt('Nome da nova hunt:');
             if (name && name.trim()) {
@@ -474,7 +489,7 @@
             }
         });
 
-        // ----- Renomear hunt atual -----
+        // ----- Renomear hunt atual (permitido para todos) -----
         renameHuntBtn.addEventListener('click', () => {
             const hunt = getCurrentHunt();
             if (!hunt) return;
@@ -486,8 +501,12 @@
             }
         });
 
-        // ----- Excluir hunt atual -----
+        // ----- Excluir hunt atual (apenas admin) -----
         deleteHuntBtn.addEventListener('click', () => {
+            if (!isAdmin) {
+                alert('Apenas o administrador pode excluir hunts.');
+                return;
+            }
             if (hunts.length <= 1) {
                 alert('Não é possível excluir a única hunt.');
                 return;
