@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Dano - Tibia (Hunts completas)</title>
+    <title>Calculadora de Dano - Tibia (Runas e Níveis)</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: #1e1e2f; color: #ddd; max-width: 1200px; margin: 20px auto; padding: 0 20px; }
@@ -32,9 +32,9 @@
 </head>
 <body>
 <div class="container">
-    <h1>⚔️ Calculadora de Dano - Tibia (Hunts completas)</h1>
-    <p style="color:#ccc;">Gerencie múltiplas hunts e calcule o dano por hora com base nos atributos do seu personagem.</p>
-    <p style="color:#aaa;">🔒 A exclusão de hunts é restrita ao administrador.</p>
+    <h1>⚔️ Calculadora de Dano - Tibia (Runas e Níveis)</h1>
+    <p style="color:#ccc;">Gerencie múltiplas hunts e calcule o dano por hora. Agora com suporte a runas: Curse, Enflame, Poison, Wound e níveis 1, 2 e 3.</p>
+    <p style="color:#aaa;">🔒 A exclusão de hunts é restrita ao administrador. Para ativar o modo admin, adicione <code>?admin=true</code> na URL.</p>
 
     <!-- Gerenciamento de Hunts -->
     <div class="hunt-bar">
@@ -100,6 +100,7 @@
                 <th>Vida</th>
                 <th>Fraqueza (ex: 1.2)</th>
                 <th>Tipo de Runa</th>
+                <th>Nível da Runa</th>
                 <th>Dano por Mob</th>
                 <th>Total/h</th>
             </tr>
@@ -115,7 +116,7 @@
     </div>
 
     <!-- Créditos -->
-    <div class="credits">Criado por Cedine Rush · Versão Web Completa</div>
+    <div class="credits">Criado por Cedine Rush · Versão com Runas e Níveis</div>
 </div>
 
 <script>
@@ -158,6 +159,35 @@
 
         const STORAGE_KEY = 'tibiaDamageHunts';
 
+        // ----- Multiplicadores de runa por tipo e nível -----
+        const RUNE_MULTIPLIERS = {
+            // Runas normais (5% base)
+            'normal': { 1: 0.05, 2: 0.05, 3: 0.05 },
+            'low blow': { 1: 0.08, 2: 0.08, 3: 0.08 }, // Low Blow fixo
+            'savage blow': { 1: 0.4, 2: 0.4, 3: 0.4 }, // Savage Blow fixo
+            // Novas runas com níveis
+            'curse': { 1: 0.05, 2: 0.06, 3: 0.07 },
+            'enflame': { 1: 0.05, 2: 0.06, 3: 0.07 },
+            'poison': { 1: 0.05, 2: 0.06, 3: 0.07 },
+            'wound': { 1: 0.05, 2: 0.06, 3: 0.07 },
+            // Runas existentes (tratadas como normal, mas com multiplicadores por nível)
+            'divine wrath': { 1: 0.05, 2: 0.06, 3: 0.07 },
+            'zap': { 1: 0.05, 2: 0.06, 3: 0.07 },
+            'freeze': { 1: 0.05, 2: 0.06, 3: 0.07 }
+        };
+
+        // ----- Função para obter o multiplicador correto -----
+        function getRuneMultiplier(runeType, level) {
+            const key = (runeType || 'normal').toLowerCase().trim();
+            const levelNum = parseInt(level) || 1;
+            // Se a runa existir no dicionário, pega o multiplicador do nível; senão, usa normal nível 1
+            if (RUNE_MULTIPLIERS[key]) {
+                return RUNE_MULTIPLIERS[key][levelNum] || RUNE_MULTIPLIERS[key][1] || 0.05;
+            }
+            // Fallback para runas desconhecidas
+            return 0.05;
+        }
+
         // ----- Utilitários -----
         function generateId() {
             return Date.now() + '-' + Math.random().toString(36).substr(2, 9);
@@ -178,8 +208,13 @@
             } else {
                 resetToExamples();
             }
-            // Garantir que cada hunt tenha um array de monsters
-            hunts.forEach(h => { if (!h.monsters) h.monsters = []; });
+            // Garantir que cada hunt tenha um array de monsters e que cada monstro tenha nível de runa
+            hunts.forEach(h => {
+                if (!h.monsters) h.monsters = [];
+                h.monsters.forEach(m => {
+                    if (!m.runeLevel) m.runeLevel = 1; // nível padrão
+                });
+            });
             if (hunts.length === 0) resetToExamples();
             if (!currentHuntId || !hunts.find(h => h.id === currentHuntId)) {
                 if (hunts.length > 0) currentHuntId = hunts[0].id;
@@ -187,35 +222,35 @@
         }
 
         function resetToExamples() {
-            // Cria hunts de exemplo (mesmas do código Python)
+            // Cria hunts de exemplo com níveis de runa
             hunts = [
                 {
                     id: generateId(),
                     name: 'Bulltaur Lair',
                     monsters: [
-                        { name: 'Bulltaur Alchemist', qty: 614, hp: 5960, weakness: 1.2, runeType: 'Normal' },
-                        { name: 'Bulltaur Brute', qty: 607, hp: 6560, weakness: 1.1, runeType: 'Divine Wrath' },
-                        { name: 'Bulltaur Forgepriest', qty: 396, hp: 6840, weakness: 1.1, runeType: 'Freeze' }
+                        { name: 'Bulltaur Alchemist', qty: 614, hp: 5960, weakness: 1.2, runeType: 'Normal', runeLevel: 1 },
+                        { name: 'Bulltaur Brute', qty: 607, hp: 6560, weakness: 1.1, runeType: 'Divine Wrath', runeLevel: 2 },
+                        { name: 'Bulltaur Forgepriest', qty: 396, hp: 6840, weakness: 1.1, runeType: 'Freeze', runeLevel: 3 }
                     ]
                 },
                 {
                     id: generateId(),
                     name: 'Goannas',
                     monsters: [
-                        { name: 'Adult Goanna', qty: 359, hp: 8300, weakness: 1.2, runeType: 'Zap' },
-                        { name: 'Manticore', qty: 340, hp: 6700, weakness: 1.2, runeType: 'Freeze' },
-                        { name: 'Young Goanna', qty: 319, hp: 6944, weakness: 1.2, runeType: 'Zap' },
-                        { name: 'Feral Sphinx', qty: 292, hp: 9800, weakness: 1.15, runeType: 'Freeze' }
+                        { name: 'Adult Goanna', qty: 359, hp: 8300, weakness: 1.2, runeType: 'Zap', runeLevel: 2 },
+                        { name: 'Manticore', qty: 340, hp: 6700, weakness: 1.2, runeType: 'Freeze', runeLevel: 1 },
+                        { name: 'Young Goanna', qty: 319, hp: 6944, weakness: 1.2, runeType: 'Zap', runeLevel: 2 },
+                        { name: 'Feral Sphinx', qty: 292, hp: 9800, weakness: 1.15, runeType: 'Freeze', runeLevel: 3 }
                     ]
                 },
                 {
                     id: generateId(),
                     name: 'Oramond',
                     monsters: [
-                        { name: 'Dark Torturer', qty: 171, hp: 7350, weakness: 1.1, runeType: 'Divine Wrath' },
-                        { name: 'Grim Reaper', qty: 206, hp: 3900, weakness: 1.0, runeType: 'Zap' },
-                        { name: 'Destroyer', qty: 222, hp: 3700, weakness: 1.0, runeType: 'Low Blow' },
-                        { name: 'Hellspawn', qty: 269, hp: 3500, weakness: 1.0, runeType: 'Savage Blow' }
+                        { name: 'Dark Torturer', qty: 171, hp: 7350, weakness: 1.1, runeType: 'Divine Wrath', runeLevel: 1 },
+                        { name: 'Grim Reaper', qty: 206, hp: 3900, weakness: 1.0, runeType: 'Zap', runeLevel: 2 },
+                        { name: 'Destroyer', qty: 222, hp: 3700, weakness: 1.0, runeType: 'Low Blow', runeLevel: 1 },
+                        { name: 'Hellspawn', qty: 269, hp: 3500, weakness: 1.0, runeType: 'Savage Blow', runeLevel: 1 }
                     ]
                 }
             ];
@@ -259,12 +294,9 @@
             }
         }
 
-        // ----- Calcular dano da runa baseado no monstro -----
+        // ----- Calcular dano da runa baseado no monstro, tipo e nível -----
         function calculateRuneDamage(m) {
-            let mult = 0.05; // padrão normal
-            const rune = (m.runeType || '').toLowerCase();
-            if (rune.includes('low blow')) mult = 0.08;
-            else if (rune.includes('savage blow')) mult = 0.4;
+            const mult = getRuneMultiplier(m.runeType, m.runeLevel);
             return (m.hp || 0) * mult * (m.weakness || 1.0);
         }
 
@@ -327,8 +359,12 @@
                 const runeSelect = document.createElement('select');
                 runeSelect.dataset.index = index;
                 runeSelect.dataset.field = 'runeType';
-                // Opções: incluímos os principais tipos, mas o multiplicador é definido pela palavra "low blow" ou "savage blow"
-                const options = ['Normal', 'Low Blow', 'Savage Blow', 'Divine Wrath', 'Zap', 'Freeze'];
+                // Lista completa de runas
+                const options = [
+                    'Normal', 'Low Blow', 'Savage Blow', 
+                    'Divine Wrath', 'Zap', 'Freeze',
+                    'Curse', 'Enflame', 'Poison', 'Wound'
+                ];
                 options.forEach(opt => {
                     const option = document.createElement('option');
                     option.value = opt;
@@ -339,6 +375,22 @@
                 runeSelect.addEventListener('change', handleInputChange);
                 tdRune.appendChild(runeSelect);
                 row.appendChild(tdRune);
+
+                // Nível da Runa
+                const tdRuneLevel = document.createElement('td');
+                const levelSelect = document.createElement('select');
+                levelSelect.dataset.index = index;
+                levelSelect.dataset.field = 'runeLevel';
+                for (let lvl = 1; lvl <= 3; lvl++) {
+                    const option = document.createElement('option');
+                    option.value = lvl;
+                    option.textContent = `Nível ${lvl}`;
+                    if (m.runeLevel == lvl) option.selected = true;
+                    levelSelect.appendChild(option);
+                }
+                levelSelect.addEventListener('change', handleInputChange);
+                tdRuneLevel.appendChild(levelSelect);
+                row.appendChild(tdRuneLevel);
 
                 // Dano por Mob (calculado)
                 const tdDmgMob = document.createElement('td');
@@ -365,8 +417,8 @@
                 if (!mob) return;
                 const dmgMob = calculateRuneDamage(mob);
                 const totalMob = dmgMob * (mob.qty || 0);
-                const tdDmg = row.querySelector('td:nth-child(6)');
-                const tdTotal = row.querySelector('td:nth-child(7)');
+                const tdDmg = row.querySelector('td:nth-child(7)'); // coluna Dano por Mob
+                const tdTotal = row.querySelector('td:nth-child(8)'); // coluna Total/h
                 if (tdDmg) tdDmg.textContent = dmgMob.toFixed(2);
                 if (tdTotal) tdTotal.textContent = totalMob.toFixed(2);
             });
@@ -379,12 +431,11 @@
             const field = input.dataset.field;
             let value = input.value;
             if (input.type === 'number' || input.tagName === 'SELECT') {
-                if (field === 'qty' || field === 'hp' || field === 'weakness') {
+                if (field === 'qty' || field === 'hp' || field === 'weakness' || field === 'runeLevel') {
                     value = parseFloat(value) || 0;
                 } else if (field === 'runeType') {
                     value = input.value;
                 }
-                // Se for número e NaN, define 0
                 if (isNaN(value)) value = 0;
             }
             const monsters = getCurrentMonsters();
@@ -403,7 +454,8 @@
                 qty: 100,
                 hp: 5000,
                 weakness: 1.0,
-                runeType: 'Normal'
+                runeType: 'Normal',
+                runeLevel: 1
             });
             setCurrentMonsters(monsters);
             renderTable();
