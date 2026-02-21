@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Dano - Tibia (Sustain Total)</title>
+    <title>Calculadora de Dano - Tibia (Major + Minor Charms)</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: #1e1e2f; color: #ddd; max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        body { background: #1e1e2f; color: #ddd; max-width: 1400px; margin: 20px auto; padding: 0 20px; }
         h1, h2, h3 { color: #f0b87b; }
         .container { background: #2a2a3a; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
         .param-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
@@ -32,9 +32,9 @@
 </head>
 <body>
 <div class="container">
-    <h1>⚔️ Calculadora de Dano - Tibia (Sustain Total)</h1>
-    <p style="color:#ccc;">Level, skill, major e minor charms com níveis. O sustain (life/mana leech) agora é calculado sobre o dano total (físico + charms).</p>
-    <p style="color:#aaa;">🔒 A exclusão de hunts é restrita ao administrador. Para ativar o modo admin, adicione <code>?admin=true</code> na URL.</p>
+    <h1>⚔️ Calculadora de Dano - Tibia (Major + Minor Charms)</h1>
+    <p style="color:#ccc;">Agora com Major e Minor Charms separados, cada um com seu nível. O dano total é a soma de ambos.</p>
+    <p style="color:#aaa;">🔒 A exclusão de hunts é restrita ao administrador.</p>
 
     <!-- Gerenciamento de Hunts -->
     <div class="hunt-bar">
@@ -110,10 +110,13 @@
                 <th>Nome</th>
                 <th>Qtd/h</th>
                 <th>Vida</th>
-                <th>Fraqueza (ex: 1.2)</th>
-                <th>Tipo de Charm</th>
-                <th>Nível do Charm</th>
-                <th>Dano por Mob</th>
+                <th>Fraqueza</th>
+                <th>Major Charm</th>
+                <th>Nível</th>
+                <th>Minor Charm</th>
+                <th>Nível</th>
+                <th>Dano Major</th>
+                <th>Dano Minor</th>
                 <th>Total/h</th>
             </tr>
         </thead>
@@ -124,12 +127,12 @@
 
     <!-- Resultado total com sustain -->
     <div class="total-footer" id="totalResult">
-        Dano Físico/h: 0 | Dano Charms/h: 0 | Dano Total/h: 0<br>
+        Dano Físico/h: 0 | Dano Major/h: 0 | Dano Minor/h: 0 | Dano Total/h: 0<br>
         Sustain: Life Leech/h: 0 | Mana Leech/h: 0
     </div>
 
     <!-- Créditos -->
-    <div class="credits">Criado por Cedine Rush · Versão com Sustain Total</div>
+    <div class="credits">Criado por Cedine Rush · Versão Major + Minor</div>
 </div>
 
 <script>
@@ -175,14 +178,11 @@
 
         const STORAGE_KEY = 'tibiaDamageHunts';
 
-        // ----- Multiplicadores de charm por tipo e nível (percentuais exatos) -----
-        const CHARM_MULTIPLIERS = {
-            // Major Charms (base 5%/6%/7%)
+        // ----- Multiplicadores de Major Charms -----
+        const MAJOR_MULTIPLIERS = {
             'normal': { 1: 0.05, 2: 0.06, 3: 0.07 },
-            'low blow': { 1: 0.08, 2: 0.08, 3: 0.08 }, // Low Blow fixo 8%
-            'savage blow': { 1: 0.4, 2: 0.4, 3: 0.4 }, // Savage Blow fixo 40%
-            
-            // Outras Major Charms elementais
+            'low blow': { 1: 0.08, 2: 0.08, 3: 0.08 },
+            'savage blow': { 1: 0.4, 2: 0.4, 3: 0.4 },
             'divine wrath': { 1: 0.05, 2: 0.06, 3: 0.07 },
             'zap': { 1: 0.05, 2: 0.06, 3: 0.07 },
             'freeze': { 1: 0.05, 2: 0.06, 3: 0.07 },
@@ -190,60 +190,64 @@
             'enflame': { 1: 0.05, 2: 0.06, 3: 0.07 },
             'poison': { 1: 0.05, 2: 0.06, 3: 0.07 },
             'wound': { 1: 0.05, 2: 0.06, 3: 0.07 },
-            
-            // Novas Major Charms
-            'dodge': { 1: 0, 2: 0, 3: 0 }, // Dodge não causa dano
-            'parry': { 1: 0.25, 2: 0.25, 3: 0.25 }, // Parry 25% da vida (simplificado)
-            'gut': { 1: 0.10, 2: 0.12, 3: 0.14 }, // Gut 10/12/14%
-            'adrenaline burst': { 1: 0, 2: 0, 3: 0 }, // Sem dano
-            'momentum': { 1: 0, 2: 0, 3: 0 }, // Sem dano
-            'vampirism': { 1: 0, 2: 0, 3: 0 }, // Sem dano (apenas leech, não incluso aqui)
+            'dodge': { 1: 0, 2: 0, 3: 0 },
+            'parry': { 1: 0.25, 2: 0.25, 3: 0.25 },
+            'gut': { 1: 0.10, 2: 0.12, 3: 0.14 },
+            'adrenaline burst': { 1: 0, 2: 0, 3: 0 },
+            'momentum': { 1: 0, 2: 0, 3: 0 },
+            'vampirism': { 1: 0, 2: 0, 3: 0 },
             'venom': { 1: 0.05, 2: 0.06, 3: 0.07 },
             'scorch': { 1: 0.05, 2: 0.06, 3: 0.07 },
-            'frost': { 1: 0.05, 2: 0.06, 3: 0.07 },
-            
-            // Minor Charms (2%/3%/4%)
-            'minor normal': { 1: 0.02, 2: 0.03, 3: 0.04 },
-            'minor zap': { 1: 0.02, 2: 0.03, 3: 0.04 },
-            'minor freeze': { 1: 0.02, 2: 0.03, 3: 0.04 },
-            'minor curse': { 1: 0.02, 2: 0.03, 3: 0.04 },
-            'minor enflame': { 1: 0.02, 2: 0.03, 3: 0.04 },
-            'minor poison': { 1: 0.02, 2: 0.03, 3: 0.04 },
-            'minor wound': { 1: 0.02, 2: 0.03, 3: 0.04 },
-            'minor divine wrath': { 1: 0.02, 2: 0.03, 3: 0.04 },
-            'minor venom': { 1: 0.02, 2: 0.03, 3: 0.04 },
-            'minor scorch': { 1: 0.02, 2: 0.03, 3: 0.04 },
-            'minor frost': { 1: 0.02, 2: 0.03, 3: 0.04 }
+            'frost': { 1: 0.05, 2: 0.06, 3: 0.07 }
         };
 
-        // ----- Função para obter o multiplicador correto -----
-        function getCharmMultiplier(charmType, level) {
-            const key = (charmType || 'normal').toLowerCase().trim();
-            const levelNum = parseInt(level) || 1;
-            
-            if (CHARM_MULTIPLIERS[key]) {
-                return CHARM_MULTIPLIERS[key][levelNum] || CHARM_MULTIPLIERS[key][1] || 0;
-            }
-            
-            // Fallback para charms desconhecidos
-            return 0.05;
-        }
+        // ----- Multiplicadores de Minor Charms (2%/3%/4%) -----
+        const MINOR_MULTIPLIERS = {
+            'normal': { 1: 0.02, 2: 0.03, 3: 0.04 },
+            'zap': { 1: 0.02, 2: 0.03, 3: 0.04 },
+            'freeze': { 1: 0.02, 2: 0.03, 3: 0.04 },
+            'curse': { 1: 0.02, 2: 0.03, 3: 0.04 },
+            'enflame': { 1: 0.02, 2: 0.03, 3: 0.04 },
+            'poison': { 1: 0.02, 2: 0.03, 3: 0.04 },
+            'wound': { 1: 0.02, 2: 0.03, 3: 0.04 },
+            'divine wrath': { 1: 0.02, 2: 0.03, 3: 0.04 },
+            'venom': { 1: 0.02, 2: 0.03, 3: 0.04 },
+            'scorch': { 1: 0.02, 2: 0.03, 3: 0.04 },
+            'frost': { 1: 0.02, 2: 0.03, 3: 0.04 },
+            // Adicionais baseados no PDF (assumindo nomes)
+            'advertência blast': { 1: 0.02, 2: 0.03, 3: 0.04 },
+            'advertência': { 1: 0.02, 2: 0.03, 3: 0.04 },
+            'blast': { 1: 0.02, 2: 0.03, 3: 0.04 }
+        };
 
-        // ----- Lista completa de charms para o select (ordenada) -----
-        const CHARM_OPTIONS = [
-            // Major Charms
+        // ----- Listas para os selects -----
+        const MAJOR_OPTIONS = [
             'Normal', 'Low Blow', 'Savage Blow',
             'Divine Wrath', 'Zap', 'Freeze',
             'Curse', 'Enflame', 'Poison', 'Wound',
-            'Dodge', 'Parry', 'Gut', 
+            'Dodge', 'Parry', 'Gut',
             'Adrenaline Burst', 'Momentum', 'Vampirism',
-            'Venom', 'Scorch', 'Frost',
-            
-            // Minor Charms
-            'Minor Normal', 'Minor Zap', 'Minor Freeze',
-            'Minor Curse', 'Minor Enflame', 'Minor Poison', 'Minor Wound',
-            'Minor Divine Wrath', 'Minor Venom', 'Minor Scorch', 'Minor Frost'
+            'Venom', 'Scorch', 'Frost'
         ];
+
+        const MINOR_OPTIONS = [
+            'Normal', 'Zap', 'Freeze', 'Curse', 'Enflame', 'Poison', 'Wound',
+            'Divine Wrath', 'Venom', 'Scorch', 'Frost',
+            'Advertência Blast', 'Advertência', 'Blast'
+        ];
+
+        // ----- Funções para obter multiplicadores -----
+        function getMajorMultiplier(type, level) {
+            const key = (type || 'normal').toLowerCase().trim();
+            const lvl = parseInt(level) || 1;
+            return MAJOR_MULTIPLIERS[key]?.[lvl] || 0.05;
+        }
+
+        function getMinorMultiplier(type, level) {
+            const key = (type || 'normal').toLowerCase().trim();
+            const lvl = parseInt(level) || 1;
+            return MINOR_MULTIPLIERS[key]?.[lvl] || 0.02;
+        }
 
         // ----- Utilitários -----
         function generateId() {
@@ -265,12 +269,14 @@
             } else {
                 resetToExamples();
             }
-            // Garantir que cada hunt tenha um array de monsters e que cada monstro tenha nível de charm
+            // Garantir que cada monstro tenha major e minor com níveis
             hunts.forEach(h => {
                 if (!h.monsters) h.monsters = [];
                 h.monsters.forEach(m => {
-                    if (!m.charmLevel) m.charmLevel = 1;
-                    if (!m.charmType) m.charmType = 'Normal';
+                    if (!m.majorType) m.majorType = 'Normal';
+                    if (!m.majorLevel) m.majorLevel = 1;
+                    if (!m.minorType) m.minorType = 'Normal';
+                    if (!m.minorLevel) m.minorLevel = 1;
                 });
             });
             if (hunts.length === 0) resetToExamples();
@@ -280,44 +286,24 @@
         }
 
         function resetToExamples() {
-            // Cria hunts de exemplo com diversos charms e níveis
             hunts = [
                 {
                     id: generateId(),
                     name: 'Bulltaur Lair',
                     monsters: [
-                        { name: 'Bulltaur Alchemist', qty: 614, hp: 5960, weakness: 1.2, charmType: 'Normal', charmLevel: 1 },
-                        { name: 'Bulltaur Brute', qty: 607, hp: 6560, weakness: 1.1, charmType: 'Divine Wrath', charmLevel: 2 },
-                        { name: 'Bulltaur Forgepriest', qty: 396, hp: 6840, weakness: 1.1, charmType: 'Freeze', charmLevel: 3 }
+                        { name: 'Bulltaur Alchemist', qty: 614, hp: 5960, weakness: 1.2, majorType: 'Normal', majorLevel: 1, minorType: 'Poison', minorLevel: 2 },
+                        { name: 'Bulltaur Brute', qty: 607, hp: 6560, weakness: 1.1, majorType: 'Divine Wrath', majorLevel: 2, minorType: 'Zap', minorLevel: 1 },
+                        { name: 'Bulltaur Forgepriest', qty: 396, hp: 6840, weakness: 1.1, majorType: 'Freeze', majorLevel: 3, minorType: 'Frost', minorLevel: 2 }
                     ]
                 },
                 {
                     id: generateId(),
                     name: 'Goannas',
                     monsters: [
-                        { name: 'Adult Goanna', qty: 359, hp: 8300, weakness: 1.2, charmType: 'Zap', charmLevel: 2 },
-                        { name: 'Manticore', qty: 340, hp: 6700, weakness: 1.2, charmType: 'Freeze', charmLevel: 1 },
-                        { name: 'Young Goanna', qty: 319, hp: 6944, weakness: 1.2, charmType: 'Zap', charmLevel: 2 },
-                        { name: 'Feral Sphinx', qty: 292, hp: 9800, weakness: 1.15, charmType: 'Freeze', charmLevel: 3 }
-                    ]
-                },
-                {
-                    id: generateId(),
-                    name: 'Oramond',
-                    monsters: [
-                        { name: 'Dark Torturer', qty: 171, hp: 7350, weakness: 1.1, charmType: 'Divine Wrath', charmLevel: 1 },
-                        { name: 'Grim Reaper', qty: 206, hp: 3900, weakness: 1.0, charmType: 'Zap', charmLevel: 2 },
-                        { name: 'Destroyer', qty: 222, hp: 3700, weakness: 1.0, charmType: 'Low Blow', charmLevel: 1 },
-                        { name: 'Hellspawn', qty: 269, hp: 3500, weakness: 1.0, charmType: 'Savage Blow', charmLevel: 1 }
-                    ]
-                },
-                {
-                    id: generateId(),
-                    name: 'Teste Charms',
-                    monsters: [
-                        { name: 'Demon', qty: 50, hp: 10000, weakness: 1.0, charmType: 'Gut', charmLevel: 3 },
-                        { name: 'Dragon', qty: 80, hp: 5000, weakness: 1.2, charmType: 'Minor Scorch', charmLevel: 2 },
-                        { name: 'Orc', qty: 200, hp: 500, weakness: 1.0, charmType: 'Parry', charmLevel: 1 }
+                        { name: 'Adult Goanna', qty: 359, hp: 8300, weakness: 1.2, majorType: 'Zap', majorLevel: 2, minorType: 'Normal', minorLevel: 1 },
+                        { name: 'Manticore', qty: 340, hp: 6700, weakness: 1.2, majorType: 'Freeze', majorLevel: 1, minorType: 'Scorch', minorLevel: 3 },
+                        { name: 'Young Goanna', qty: 319, hp: 6944, weakness: 1.2, majorType: 'Zap', majorLevel: 2, minorType: 'Venom', minorLevel: 2 },
+                        { name: 'Feral Sphinx', qty: 292, hp: 9800, weakness: 1.15, majorType: 'Freeze', majorLevel: 3, minorType: 'Advertência Blast', minorLevel: 1 }
                     ]
                 }
             ];
@@ -329,7 +315,6 @@
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
         }
 
-        // ----- Atualizar o combobox de hunts -----
         function renderHuntSelect() {
             huntSelect.innerHTML = '';
             hunts.forEach(h => {
@@ -341,18 +326,15 @@
             });
         }
 
-        // ----- Obter a hunt atual -----
         function getCurrentHunt() {
             return hunts.find(h => h.id === currentHuntId) || null;
         }
 
-        // ----- Obter os monstros da hunt atual -----
         function getCurrentMonsters() {
             const hunt = getCurrentHunt();
             return hunt ? hunt.monsters : [];
         }
 
-        // ----- Salvar os monstros da hunt atual -----
         function setCurrentMonsters(monsters) {
             const hunt = getCurrentHunt();
             if (hunt) {
@@ -361,82 +343,47 @@
             }
         }
 
-        // ----- Calcular dano do charm baseado no monstro, tipo e nível -----
-        function calculateCharmDamage(m) {
-            const mult = getCharmMultiplier(m.charmType, m.charmLevel);
-            // Charms que não causam dano
-            const nonDamageCharms = ['dodge', 'adrenaline burst', 'momentum', 'vampirism'];
-            const charmLower = (m.charmType || '').toLowerCase();
-            if (nonDamageCharms.includes(charmLower)) {
-                return 0;
-            }
-            // Para Parry, usamos o multiplicador (já definido como 0.25)
+        // ----- Cálculos de dano -----
+        function calculateMajorDamage(m) {
+            const mult = getMajorMultiplier(m.majorType, m.majorLevel);
+            // Charms que não causam dano (dodge, etc.) já tem mult 0
             return (m.hp || 0) * mult * (m.weakness || 1.0);
         }
 
-        // ----- Calcular o ataque base do personagem a partir de level, skill e bônus -----
+        function calculateMinorDamage(m) {
+            const mult = getMinorMultiplier(m.minorType, m.minorLevel);
+            return (m.hp || 0) * mult * (m.weakness || 1.0);
+        }
+
         function calculateAttackBase() {
             const level = parseFloat(levelInput.value) || 107;
             const skill = parseFloat(skillInput.value) || 163;
             const bonusEquip = parseFloat(bonusEquipInput.value) || 44;
             const bonusOutros = parseFloat(bonusOutrosInput.value) || 38;
-            
-            // Fator de conversão de level para flat damage: aproximadamente 0.95 por level
             const flatBonus = Math.round(level * 0.95);
-            
             return flatBonus + skill + bonusEquip + bonusOutros;
         }
 
-        // ----- Calcular dano médio do personagem (incluindo crítico e leech) -----
         function calcAverageDamage() {
             const attackBase = calculateAttackBase();
             const autoExtra = parseFloat(autoExtraInput.value) || 9;
             const baseDamage = attackBase + autoExtra;
-            
             const critChance = parseFloat(critChanceInput.value) / 100;
             const critExtra = parseFloat(critDamageInput.value) / 100;
-
             const normal = baseDamage;
             const crit = baseDamage * (1 + critExtra);
             const avg = (1 - critChance) * normal + critChance * crit;
-
             const lifeLeech = avg * (parseFloat(lifeLeechInput.value) / 100);
             const manaLeech = avg * (parseFloat(manaLeechInput.value) / 100);
-
             avgResult.innerHTML = `Dano médio/ataque: <strong>${avg.toFixed(2)}</strong><br>` +
                                   `Life Leech: ${lifeLeech.toFixed(2)} | Mana Leech: ${manaLeech.toFixed(2)}<br>` +
                                   `(Attack base: ${attackBase} + auto ${autoExtra} = ${baseDamage})`;
-
             return { avg, lifeLeech, manaLeech, baseDamage };
         }
 
         calcAvgBtn.addEventListener('click', calcAverageDamage);
 
-        // ----- Calcular totais por hora com sustain sobre dano total -----
-        calcTotalBtn.addEventListener('click', () => {
-            const avgData = calcAverageDamage();
-            const attacksPerHour = parseFloat(attacksPerMinInput.value) * 60;
-            const physDamage = avgData.avg * attacksPerHour;
-
-            const monsters = getCurrentMonsters();
-            let charmDamageTotal = 0;
-            monsters.forEach(m => {
-                charmDamageTotal += calculateCharmDamage(m) * (m.qty || 0);
-            });
-
-            const totalDamage = physDamage + charmDamageTotal;
-            const lifeLeechPercent = parseFloat(lifeLeechInput.value) / 100;
-            const manaLeechPercent = parseFloat(manaLeechInput.value) / 100;
-            const totalLifeLeech = totalDamage * lifeLeechPercent;
-            const totalManaLeech = totalDamage * manaLeechPercent;
-
-            totalResult.innerHTML = `Dano Físico/h: <strong>${physDamage.toFixed(0)}</strong> | ` +
-                                    `Dano Charms/h: <strong>${charmDamageTotal.toFixed(0)}</strong> | ` +
-                                    `Dano Total/h: <strong>${totalDamage.toFixed(0)}</strong><br>` +
-                                    `Sustain: Life Leech/h: <strong>${totalLifeLeech.toFixed(0)}</strong> | Mana Leech/h: <strong>${totalManaLeech.toFixed(0)}</strong>`;
-        });
-
-        // ----- Renderizar tabela de monstros da hunt atual -----
+        // ----- Renderizar tabela -----
         function renderTable() {
             const monsters = getCurrentMonsters();
             tableBody.innerHTML = '';
@@ -490,81 +437,119 @@
                 tdWeak.appendChild(weakInput);
                 row.appendChild(tdWeak);
 
-                // Tipo de Charm
-                const tdCharm = document.createElement('td');
-                const charmSelect = document.createElement('select');
-                charmSelect.dataset.index = index;
-                charmSelect.dataset.field = 'charmType';
-                
-                CHARM_OPTIONS.forEach(opt => {
+                // Major Charm
+                const tdMajor = document.createElement('td');
+                const majorSelect = document.createElement('select');
+                majorSelect.dataset.index = index;
+                majorSelect.dataset.field = 'majorType';
+                MAJOR_OPTIONS.forEach(opt => {
                     const option = document.createElement('option');
                     option.value = opt;
                     option.textContent = opt;
-                    if (m.charmType === opt) option.selected = true;
-                    charmSelect.appendChild(option);
+                    if (m.majorType === opt) option.selected = true;
+                    majorSelect.appendChild(option);
                 });
-                charmSelect.addEventListener('change', handleInputChange);
-                tdCharm.appendChild(charmSelect);
-                row.appendChild(tdCharm);
+                majorSelect.addEventListener('change', handleInputChange);
+                tdMajor.appendChild(majorSelect);
+                row.appendChild(tdMajor);
 
-                // Nível do Charm
-                const tdCharmLevel = document.createElement('td');
-                const levelSelect = document.createElement('select');
-                levelSelect.dataset.index = index;
-                levelSelect.dataset.field = 'charmLevel';
+                // Major Level
+                const tdMajorLevel = document.createElement('td');
+                const majorLevelSelect = document.createElement('select');
+                majorLevelSelect.dataset.index = index;
+                majorLevelSelect.dataset.field = 'majorLevel';
                 for (let lvl = 1; lvl <= 3; lvl++) {
                     const option = document.createElement('option');
                     option.value = lvl;
-                    option.textContent = `Nível ${lvl}`;
-                    if (m.charmLevel == lvl) option.selected = true;
-                    levelSelect.appendChild(option);
+                    option.textContent = lvl;
+                    if (m.majorLevel == lvl) option.selected = true;
+                    majorLevelSelect.appendChild(option);
                 }
-                levelSelect.addEventListener('change', handleInputChange);
-                tdCharmLevel.appendChild(levelSelect);
-                row.appendChild(tdCharmLevel);
+                majorLevelSelect.addEventListener('change', handleInputChange);
+                tdMajorLevel.appendChild(majorLevelSelect);
+                row.appendChild(tdMajorLevel);
 
-                // Dano por Mob (calculado)
-                const tdDmgMob = document.createElement('td');
-                tdDmgMob.className = 'dmg-mob';
-                tdDmgMob.textContent = calculateCharmDamage(m).toFixed(2);
-                row.appendChild(tdDmgMob);
+                // Minor Charm
+                const tdMinor = document.createElement('td');
+                const minorSelect = document.createElement('select');
+                minorSelect.dataset.index = index;
+                minorSelect.dataset.field = 'minorType';
+                MINOR_OPTIONS.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt;
+                    option.textContent = opt;
+                    if (m.minorType === opt) option.selected = true;
+                    minorSelect.appendChild(option);
+                });
+                minorSelect.addEventListener('change', handleInputChange);
+                tdMinor.appendChild(minorSelect);
+                row.appendChild(tdMinor);
 
-                // Total/h (calculado)
+                // Minor Level
+                const tdMinorLevel = document.createElement('td');
+                const minorLevelSelect = document.createElement('select');
+                minorLevelSelect.dataset.index = index;
+                minorLevelSelect.dataset.field = 'minorLevel';
+                for (let lvl = 1; lvl <= 3; lvl++) {
+                    const option = document.createElement('option');
+                    option.value = lvl;
+                    option.textContent = lvl;
+                    if (m.minorLevel == lvl) option.selected = true;
+                    minorLevelSelect.appendChild(option);
+                }
+                minorLevelSelect.addEventListener('change', handleInputChange);
+                tdMinorLevel.appendChild(minorLevelSelect);
+                row.appendChild(tdMinorLevel);
+
+                // Dano Major
+                const tdDmgMajor = document.createElement('td');
+                tdDmgMajor.className = 'dmg-major';
+                tdDmgMajor.textContent = calculateMajorDamage(m).toFixed(2);
+                row.appendChild(tdDmgMajor);
+
+                // Dano Minor
+                const tdDmgMinor = document.createElement('td');
+                tdDmgMinor.className = 'dmg-minor';
+                tdDmgMinor.textContent = calculateMinorDamage(m).toFixed(2);
+                row.appendChild(tdDmgMinor);
+
+                // Total/h (soma)
                 const tdTotal = document.createElement('td');
-                tdTotal.className = 'total-mob';
-                tdTotal.textContent = (calculateCharmDamage(m) * (m.qty || 0)).toFixed(2);
+                const totalPerMob = calculateMajorDamage(m) + calculateMinorDamage(m);
+                tdTotal.textContent = (totalPerMob * (m.qty || 0)).toFixed(2);
                 row.appendChild(tdTotal);
 
                 tableBody.appendChild(row);
             });
         }
 
-        // ----- Atualiza os campos de dano na tabela após alterações -----
         function updateDamageDisplays() {
             const monsters = getCurrentMonsters();
             const rows = tableBody.querySelectorAll('tr');
             rows.forEach((row, index) => {
                 const mob = monsters[index];
                 if (!mob) return;
-                const dmgMob = calculateCharmDamage(mob);
-                const totalMob = dmgMob * (mob.qty || 0);
-                const tdDmg = row.querySelector('td:nth-child(7)');
-                const tdTotal = row.querySelector('td:nth-child(8)');
-                if (tdDmg) tdDmg.textContent = dmgMob.toFixed(2);
-                if (tdTotal) tdTotal.textContent = totalMob.toFixed(2);
+                const majorDmg = calculateMajorDamage(mob);
+                const minorDmg = calculateMinorDamage(mob);
+                const totalPerMob = majorDmg + minorDmg;
+                const tdMajor = row.querySelector('td:nth-child(9)');
+                const tdMinor = row.querySelector('td:nth-child(10)');
+                const tdTotal = row.querySelector('td:nth-child(11)');
+                if (tdMajor) tdMajor.textContent = majorDmg.toFixed(2);
+                if (tdMinor) tdMinor.textContent = minorDmg.toFixed(2);
+                if (tdTotal) tdTotal.textContent = (totalPerMob * (mob.qty || 0)).toFixed(2);
             });
         }
 
-        // ----- Handler para quando um input é alterado -----
         function handleInputChange(e) {
             const input = e.target;
             const index = input.dataset.index;
             const field = input.dataset.field;
             let value = input.value;
             if (input.type === 'number' || input.tagName === 'SELECT') {
-                if (field === 'qty' || field === 'hp' || field === 'weakness' || field === 'charmLevel') {
+                if (field === 'qty' || field === 'hp' || field === 'weakness' || field === 'majorLevel' || field === 'minorLevel') {
                     value = parseFloat(value) || 0;
-                } else if (field === 'charmType') {
+                } else {
                     value = input.value;
                 }
                 if (isNaN(value)) value = 0;
@@ -577,7 +562,6 @@
             }
         }
 
-        // ----- Adicionar nova linha à hunt atual -----
         addRowBtn.addEventListener('click', () => {
             const monsters = getCurrentMonsters();
             monsters.push({
@@ -585,14 +569,15 @@
                 qty: 100,
                 hp: 5000,
                 weakness: 1.0,
-                charmType: 'Normal',
-                charmLevel: 1
+                majorType: 'Normal',
+                majorLevel: 1,
+                minorType: 'Normal',
+                minorLevel: 1
             });
             setCurrentMonsters(monsters);
             renderTable();
         });
 
-        // ----- Remover última linha da hunt atual -----
         removeRowBtn.addEventListener('click', () => {
             const monsters = getCurrentMonsters();
             if (monsters.length > 0) {
@@ -602,7 +587,31 @@
             }
         });
 
-        // ----- Trocar de hunt -----
+        calcTotalBtn.addEventListener('click', () => {
+            const avgData = calcAverageDamage();
+            const attacksPerHour = parseFloat(attacksPerMinInput.value) * 60;
+            const physDamage = avgData.avg * attacksPerHour;
+
+            const monsters = getCurrentMonsters();
+            let majorTotal = 0, minorTotal = 0;
+            monsters.forEach(m => {
+                majorTotal += calculateMajorDamage(m) * (m.qty || 0);
+                minorTotal += calculateMinorDamage(m) * (m.qty || 0);
+            });
+
+            const totalDamage = physDamage + majorTotal + minorTotal;
+            const lifeLeechPercent = parseFloat(lifeLeechInput.value) / 100;
+            const manaLeechPercent = parseFloat(manaLeechInput.value) / 100;
+            const totalLifeLeech = totalDamage * lifeLeechPercent;
+            const totalManaLeech = totalDamage * manaLeechPercent;
+
+            totalResult.innerHTML = `Dano Físico/h: <strong>${physDamage.toFixed(0)}</strong> | ` +
+                                    `Dano Major/h: <strong>${majorTotal.toFixed(0)}</strong> | ` +
+                                    `Dano Minor/h: <strong>${minorTotal.toFixed(0)}</strong> | ` +
+                                    `Dano Total/h: <strong>${totalDamage.toFixed(0)}</strong><br>` +
+                                    `Sustain: Life Leech/h: <strong>${totalLifeLeech.toFixed(0)}</strong> | Mana Leech/h: <strong>${totalManaLeech.toFixed(0)}</strong>`;
+        });
+
         function switchHunt(huntId) {
             if (!huntId) return;
             currentHuntId = huntId;
@@ -615,7 +624,6 @@
             switchHunt(e.target.value);
         });
 
-        // ----- Nova hunt (permitida para todos) -----
         newHuntBtn.addEventListener('click', () => {
             const name = prompt('Nome da nova hunt:');
             if (name && name.trim()) {
@@ -632,7 +640,6 @@
             }
         });
 
-        // ----- Renomear hunt atual (permitido para todos) -----
         renameHuntBtn.addEventListener('click', () => {
             const hunt = getCurrentHunt();
             if (!hunt) return;
@@ -644,7 +651,6 @@
             }
         });
 
-        // ----- Excluir hunt atual (apenas admin) -----
         deleteHuntBtn.addEventListener('click', () => {
             if (!isAdmin) {
                 alert('Apenas o administrador pode excluir hunts.');
@@ -670,7 +676,6 @@
         loadFromStorage();
         renderHuntSelect();
         renderTable();
-        // Calcular dano médio inicial
         setTimeout(() => calcAverageDamage(), 100);
     })();
 </script>
