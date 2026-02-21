@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Dano - Tibia</title>
+    <title>Calculadora de Dano - Tibia (Corrigida v3)</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: #1e1e2f; color: #ddd; max-width: 1400px; margin: 20px auto; padding: 0 20px; }
@@ -38,7 +38,7 @@
 </head>
 <body>
 <div class="container">
-    <h1>⚔️ Calculadora de Dano - Tibia</h1>
+    <h1>⚔️ Calculadora de Dano - Tibia (Corrigida v3)</h1>
     
     <!-- Seção de instruções (homepage) -->
     <div class="guide">
@@ -81,7 +81,7 @@
         <p><strong>⚠️ Importante:</strong> Os valores de <code>Life Leech Base</code> e <code>Mana Leech Base</code> devem incluir <strong>todos</strong> os imbuements e bônus da Roda de Habilidades que você possui. Por exemplo, se você tem um imbuement de 50% life leech e a roda concede 0,75%, o total é 50,75%.</p>
         <p>Os minor charms de leech <strong>não causam dano</strong>, apenas aumentam o respectivo leech sobre o dano causado ao monstro (Major + físico). O bônus é somado ao leech base no resultado final.</p>
         <p>Para adicionar ou remover monstros, use os botões abaixo da tabela. Os dados são salvos automaticamente no seu navegador.</p>
-        <p style="color:#f0b87b;">🔒 A exclusão de hunts é restrita ao administrador.</p>
+        <p style="color:#f0b87b;">🔒 A exclusão de hunts é restrita ao administrador. Para ativar, adicione <code>?admin=true</code> na URL.</p>
     </div>
 
     <!-- Gerenciamento de Hunts -->
@@ -193,7 +193,7 @@
     </div>
 
     <!-- Créditos -->
-    <div class="credits">Criado por Cedine Rush · Versão Corrigida (Atualização instantânea)</div>
+    <div class="credits">Criado por Cedine Rush · Versão Corrigida (Atualização Garantida)</div>
 </div>
 
 <script>
@@ -627,21 +627,18 @@
                 tdMinorLevel.appendChild(minorLevelSelect);
                 row.appendChild(tdMinorLevel);
 
-                // Dano Major (com classe)
+                // Dano Major (será atualizado via updateDamageDisplays)
                 const tdDmgMajor = document.createElement('td');
-                tdDmgMajor.className = 'dmg-major';
                 tdDmgMajor.textContent = formatNumber(calculateMajorDamage(m));
                 row.appendChild(tdDmgMajor);
 
                 // Dano Minor (sempre 0)
                 const tdDmgMinor = document.createElement('td');
-                tdDmgMinor.className = 'dmg-minor';
                 tdDmgMinor.textContent = '0,00';
                 row.appendChild(tdDmgMinor);
 
-                // Total/h (com classe)
+                // Total/h (soma)
                 const tdTotal = document.createElement('td');
-                tdTotal.className = 'total-mob';
                 const totalPerMob = calculateMajorDamage(m) * (m.qty || 0);
                 tdTotal.textContent = formatNumber(totalPerMob);
                 row.appendChild(tdTotal);
@@ -650,7 +647,7 @@
             });
         }
 
-        // ----- Atualiza os campos de dano na tabela usando as classes -----
+        // ----- Atualiza os campos de dano na tabela usando índices fixos -----
         function updateDamageDisplays() {
             const monsters = getCurrentMonsters();
             const rows = tableBody.querySelectorAll('tr');
@@ -659,11 +656,14 @@
                 if (!mob) return;
                 const majorDmg = calculateMajorDamage(mob);
                 const totalPerMob = majorDmg * (mob.qty || 0);
-                const tdMajor = row.querySelector('.dmg-major');
-                const tdTotal = row.querySelector('.total-mob');
-                if (tdMajor) tdMajor.textContent = formatNumber(majorDmg);
-                if (tdTotal) tdTotal.textContent = formatNumber(totalPerMob);
-                // Minor continua 0, não precisa atualizar
+                // Índices das colunas: 
+                // 0: Nome, 1: Qtd, 2: Vida, 3: Fraqueza, 4: Major, 5: Nível Major, 
+                // 6: Minor, 7: Nível Minor, 8: Dano Major, 9: Dano Minor, 10: Total
+                const cellDmgMajor = row.cells[8];
+                const cellTotal = row.cells[10];
+                if (cellDmgMajor) cellDmgMajor.textContent = formatNumber(majorDmg);
+                if (cellTotal) cellTotal.textContent = formatNumber(totalPerMob);
+                // Dano Minor permanece 0, não precisa atualizar
             });
         }
 
