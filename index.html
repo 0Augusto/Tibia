@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Dano - Tibia (Major + Minor Charms)</title>
+    <title>Calculadora de Dano - Tibia (Charms de Leech)</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: #1e1e2f; color: #ddd; max-width: 1400px; margin: 20px auto; padding: 0 20px; }
@@ -32,9 +32,9 @@
 </head>
 <body>
 <div class="container">
-    <h1>⚔️ Calculadora de Dano - Tibia (Major + Minor Charms)</h1>
-    <p style="color:#ccc;">Agora com Major e Minor Charms separados, cada um com seu nível. O dano total é a soma de ambos.</p>
-    <p style="color:#aaa;">🔒 A exclusão de hunts é restrita ao administrador.</p>
+    <h1>⚔️ Calculadora de Dano - Tibia (Charms de Leech)</h1>
+    <p style="color:#ccc;">Major Charms causam dano. Vampiric Embrace aumenta Life Leech; Void's Call aumenta Mana Leech. Void Inversion (sem dano).</p>
+    <p style="color:#aaa;">🔒 A exclusão de hunts é restrita ao administrador. Para ativar o modo admin, adicione <code>?admin=true</code> na URL.</p>
 
     <!-- Gerenciamento de Hunts -->
     <div class="hunt-bar">
@@ -77,11 +77,11 @@
             <input type="number" id="critDamage" value="57.5" step="0.1">
         </div>
         <div class="param-item">
-            <label>Life Leech (%)</label>
+            <label>Life Leech Base (%)</label>
             <input type="number" id="lifeLeech" value="50.75" step="0.01">
         </div>
         <div class="param-item">
-            <label>Mana Leech (%)</label>
+            <label>Mana Leech Base (%)</label>
             <input type="number" id="manaLeech" value="16.25" step="0.01">
         </div>
         <div class="param-item">
@@ -113,11 +113,11 @@
                 <th>Fraqueza</th>
                 <th>Major Charm</th>
                 <th>Nível</th>
-                <th>Minor Charm</th>
+                <th>Minor Charm (Leech)</th>
                 <th>Nível</th>
                 <th>Dano Major</th>
                 <th>Dano Minor</th>
-                <th>Total/h</th>
+                <th>Total/h (Mob)</th>
             </tr>
         </thead>
         <tbody id="tableBody">
@@ -128,11 +128,11 @@
     <!-- Resultado total com sustain -->
     <div class="total-footer" id="totalResult">
         Dano Físico/h: 0 | Dano Major/h: 0 | Dano Minor/h: 0 | Dano Total/h: 0<br>
-        Sustain: Life Leech/h: 0 | Mana Leech/h: 0
+        Life Leech/h: 0 (base) + 0 (charms) = 0 | Mana Leech/h: 0 (base) + 0 (charms) = 0
     </div>
 
     <!-- Créditos -->
-    <div class="credits">Criado por Cedine Rush · Versão Major + Minor</div>
+    <div class="credits">Criado por Cedine Rush · Versão com Leech por Charms</div>
 </div>
 
 <script>
@@ -161,6 +161,16 @@
         const deleteHuntBtn = document.getElementById('deleteHuntBtn');
         const adminIndicator = document.getElementById('adminIndicator');
 
+        // ----- Formatação de números (duas casas decimais, ponto como separador de milhar) -----
+        function formatNumber(value) {
+            if (value === null || isNaN(value)) return '0,00';
+            // Fixar duas casas decimais
+            let parts = value.toFixed(2).split('.');
+            // Separador de milhar: adicionar pontos a cada 3 dígitos na parte inteira
+            let integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            return integerPart + ',' + parts[1];
+        }
+
         // ----- Verificar se é admin (parâmetro ?admin=true na URL) -----
         const urlParams = new URLSearchParams(window.location.search);
         const isAdmin = urlParams.get('admin') === 'true';
@@ -173,12 +183,11 @@
         }
 
         // ----- Estrutura de dados -----
-        let hunts = [];                // array de { id, name, monsters }
+        let hunts = [];
         let currentHuntId = null;
-
         const STORAGE_KEY = 'tibiaDamageHunts';
 
-        // ----- Multiplicadores de Major Charms -----
+        // ----- Multiplicadores de Major Charms (causam dano) -----
         const MAJOR_MULTIPLIERS = {
             'normal': { 1: 0.05, 2: 0.06, 3: 0.07 },
             'low blow': { 1: 0.08, 2: 0.08, 3: 0.08 },
@@ -201,23 +210,11 @@
             'frost': { 1: 0.05, 2: 0.06, 3: 0.07 }
         };
 
-        // ----- Multiplicadores de Minor Charms (2%/3%/4%) -----
+        // ----- Multiplicadores dos Minor Charms (agora só influenciam leech, dano = 0) -----
         const MINOR_MULTIPLIERS = {
-            'normal': { 1: 0.02, 2: 0.03, 3: 0.04 },
-            'zap': { 1: 0.02, 2: 0.03, 3: 0.04 },
-            'freeze': { 1: 0.02, 2: 0.03, 3: 0.04 },
-            'curse': { 1: 0.02, 2: 0.03, 3: 0.04 },
-            'enflame': { 1: 0.02, 2: 0.03, 3: 0.04 },
-            'poison': { 1: 0.02, 2: 0.03, 3: 0.04 },
-            'wound': { 1: 0.02, 2: 0.03, 3: 0.04 },
-            'divine wrath': { 1: 0.02, 2: 0.03, 3: 0.04 },
-            'venom': { 1: 0.02, 2: 0.03, 3: 0.04 },
-            'scorch': { 1: 0.02, 2: 0.03, 3: 0.04 },
-            'frost': { 1: 0.02, 2: 0.03, 3: 0.04 },
-            // Adicionais baseados no PDF (assumindo nomes)
-            'advertência blast': { 1: 0.02, 2: 0.03, 3: 0.04 },
-            'advertência': { 1: 0.02, 2: 0.03, 3: 0.04 },
-            'blast': { 1: 0.02, 2: 0.03, 3: 0.04 }
+            'vampiric embrace': { 1: 0.016, 2: 0.024, 3: 0.032 }, // life leech adicional
+            'void\'s call': { 1: 0.008, 2: 0.012, 3: 0.016 },     // mana leech adicional
+            'void inversion': { 1: 0, 2: 0, 3: 0 }                // sem efeito (placeholder)
         };
 
         // ----- Listas para os selects -----
@@ -231,9 +228,9 @@
         ];
 
         const MINOR_OPTIONS = [
-            'Normal', 'Zap', 'Freeze', 'Curse', 'Enflame', 'Poison', 'Wound',
-            'Divine Wrath', 'Venom', 'Scorch', 'Frost',
-            'Advertência Blast', 'Advertência', 'Blast'
+            'Vampiric Embrace',
+            'Void\'s Call',
+            'Void Inversion'
         ];
 
         // ----- Funções para obter multiplicadores -----
@@ -244,9 +241,9 @@
         }
 
         function getMinorMultiplier(type, level) {
-            const key = (type || 'normal').toLowerCase().trim();
+            const key = (type || 'vampiric embrace').toLowerCase().trim();
             const lvl = parseInt(level) || 1;
-            return MINOR_MULTIPLIERS[key]?.[lvl] || 0.02;
+            return MINOR_MULTIPLIERS[key]?.[lvl] || 0;
         }
 
         // ----- Utilitários -----
@@ -269,13 +266,12 @@
             } else {
                 resetToExamples();
             }
-            // Garantir que cada monstro tenha major e minor com níveis
             hunts.forEach(h => {
                 if (!h.monsters) h.monsters = [];
                 h.monsters.forEach(m => {
                     if (!m.majorType) m.majorType = 'Normal';
                     if (!m.majorLevel) m.majorLevel = 1;
-                    if (!m.minorType) m.minorType = 'Normal';
+                    if (!m.minorType) m.minorType = 'Vampiric Embrace';
                     if (!m.minorLevel) m.minorLevel = 1;
                 });
             });
@@ -291,19 +287,19 @@
                     id: generateId(),
                     name: 'Bulltaur Lair',
                     monsters: [
-                        { name: 'Bulltaur Alchemist', qty: 614, hp: 5960, weakness: 1.2, majorType: 'Normal', majorLevel: 1, minorType: 'Poison', minorLevel: 2 },
-                        { name: 'Bulltaur Brute', qty: 607, hp: 6560, weakness: 1.1, majorType: 'Divine Wrath', majorLevel: 2, minorType: 'Zap', minorLevel: 1 },
-                        { name: 'Bulltaur Forgepriest', qty: 396, hp: 6840, weakness: 1.1, majorType: 'Freeze', majorLevel: 3, minorType: 'Frost', minorLevel: 2 }
+                        { name: 'Bulltaur Alchemist', qty: 614, hp: 5960, weakness: 1.2, majorType: 'Normal', majorLevel: 1, minorType: 'Vampiric Embrace', minorLevel: 2 },
+                        { name: 'Bulltaur Brute', qty: 607, hp: 6560, weakness: 1.1, majorType: 'Divine Wrath', majorLevel: 2, minorType: 'Void\'s Call', minorLevel: 1 },
+                        { name: 'Bulltaur Forgepriest', qty: 396, hp: 6840, weakness: 1.1, majorType: 'Freeze', majorLevel: 3, minorType: 'Void Inversion', minorLevel: 1 }
                     ]
                 },
                 {
                     id: generateId(),
                     name: 'Goannas',
                     monsters: [
-                        { name: 'Adult Goanna', qty: 359, hp: 8300, weakness: 1.2, majorType: 'Zap', majorLevel: 2, minorType: 'Normal', minorLevel: 1 },
-                        { name: 'Manticore', qty: 340, hp: 6700, weakness: 1.2, majorType: 'Freeze', majorLevel: 1, minorType: 'Scorch', minorLevel: 3 },
-                        { name: 'Young Goanna', qty: 319, hp: 6944, weakness: 1.2, majorType: 'Zap', majorLevel: 2, minorType: 'Venom', minorLevel: 2 },
-                        { name: 'Feral Sphinx', qty: 292, hp: 9800, weakness: 1.15, majorType: 'Freeze', majorLevel: 3, minorType: 'Advertência Blast', minorLevel: 1 }
+                        { name: 'Adult Goanna', qty: 359, hp: 8300, weakness: 1.2, majorType: 'Zap', majorLevel: 2, minorType: 'Vampiric Embrace', minorLevel: 1 },
+                        { name: 'Manticore', qty: 340, hp: 6700, weakness: 1.2, majorType: 'Freeze', majorLevel: 1, minorType: 'Void\'s Call', minorLevel: 3 },
+                        { name: 'Young Goanna', qty: 319, hp: 6944, weakness: 1.2, majorType: 'Zap', majorLevel: 2, minorType: 'Void Inversion', minorLevel: 2 },
+                        { name: 'Feral Sphinx', qty: 292, hp: 9800, weakness: 1.15, majorType: 'Freeze', majorLevel: 3, minorType: 'Vampiric Embrace', minorLevel: 2 }
                     ]
                 }
             ];
@@ -346,15 +342,15 @@
         // ----- Cálculos de dano -----
         function calculateMajorDamage(m) {
             const mult = getMajorMultiplier(m.majorType, m.majorLevel);
-            // Charms que não causam dano (dodge, etc.) já tem mult 0
             return (m.hp || 0) * mult * (m.weakness || 1.0);
         }
 
+        // Minor charms NÃO causam dano
         function calculateMinorDamage(m) {
-            const mult = getMinorMultiplier(m.minorType, m.minorLevel);
-            return (m.hp || 0) * mult * (m.weakness || 1.0);
+            return 0;
         }
 
+        // ----- Cálculo do ataque base -----
         function calculateAttackBase() {
             const level = parseFloat(levelInput.value) || 107;
             const skill = parseFloat(skillInput.value) || 163;
@@ -364,6 +360,7 @@
             return flatBonus + skill + bonusEquip + bonusOutros;
         }
 
+        // ----- Dano médio por ataque -----
         function calcAverageDamage() {
             const attackBase = calculateAttackBase();
             const autoExtra = parseFloat(autoExtraInput.value) || 9;
@@ -375,13 +372,60 @@
             const avg = (1 - critChance) * normal + critChance * crit;
             const lifeLeech = avg * (parseFloat(lifeLeechInput.value) / 100);
             const manaLeech = avg * (parseFloat(manaLeechInput.value) / 100);
-            avgResult.innerHTML = `Dano médio/ataque: <strong>${avg.toFixed(2)}</strong><br>` +
-                                  `Life Leech: ${lifeLeech.toFixed(2)} | Mana Leech: ${manaLeech.toFixed(2)}<br>` +
+            avgResult.innerHTML = `Dano médio/ataque: <strong>${formatNumber(avg)}</strong><br>` +
+                                  `Life Leech (base): ${formatNumber(lifeLeech)} | Mana Leech (base): ${formatNumber(manaLeech)}<br>` +
                                   `(Attack base: ${attackBase} + auto ${autoExtra} = ${baseDamage})`;
             return { avg, lifeLeech, manaLeech, baseDamage };
         }
 
         calcAvgBtn.addEventListener('click', calcAverageDamage);
+
+        // ----- Calcular totais por hora e sustain com charms -----
+        calcTotalBtn.addEventListener('click', () => {
+            const avgData = calcAverageDamage();
+            const attacksPerHour = parseFloat(attacksPerMinInput.value) * 60;
+            const physDamage = avgData.avg * attacksPerHour;
+
+            const monsters = getCurrentMonsters();
+            let majorTotal = 0;
+            let lifeLeechBonusTotal = 0;
+            let manaLeechBonusTotal = 0;
+
+            monsters.forEach(m => {
+                const majorDmg = calculateMajorDamage(m);
+                const qty = m.qty || 0;
+                const totalMobDmg = majorDmg * qty; // minor não contribui com dano
+                majorTotal += totalMobDmg;
+
+                // Calcular bônus de leech do minor charm
+                const minorType = (m.minorType || '').toLowerCase().trim();
+                const minorLevel = parseInt(m.minorLevel) || 1;
+                if (minorType.includes('vampiric')) {
+                    const bonus = getMinorMultiplier('vampiric embrace', minorLevel);
+                    lifeLeechBonusTotal += totalMobDmg * bonus;
+                } else if (minorType.includes('void\'s') || minorType.includes('voids')) {
+                    const bonus = getMinorMultiplier('void\'s call', minorLevel);
+                    manaLeechBonusTotal += totalMobDmg * bonus;
+                }
+                // Void Inversion não adiciona nada
+            });
+
+            const totalDamage = physDamage + majorTotal; // minor não adiciona dano
+            const lifeLeechBasePercent = parseFloat(lifeLeechInput.value) / 100;
+            const manaLeechBasePercent = parseFloat(manaLeechInput.value) / 100;
+            const lifeLeechBase = totalDamage * lifeLeechBasePercent;
+            const manaLeechBase = totalDamage * manaLeechBasePercent;
+
+            const lifeLeechTotal = lifeLeechBase + lifeLeechBonusTotal;
+            const manaLeechTotal = manaLeechBase + manaLeechBonusTotal;
+
+            totalResult.innerHTML = `Dano Físico/h: <strong>${formatNumber(physDamage)}</strong> | ` +
+                                    `Dano Major/h: <strong>${formatNumber(majorTotal)}</strong> | ` +
+                                    `Dano Minor/h: <strong>0,00</strong> | ` +
+                                    `Dano Total/h: <strong>${formatNumber(totalDamage)}</strong><br>` +
+                                    `Life Leech/h: ${formatNumber(lifeLeechBase)} (base) + ${formatNumber(lifeLeechBonusTotal)} (charms) = <strong>${formatNumber(lifeLeechTotal)}</strong><br>` +
+                                    `Mana Leech/h: ${formatNumber(manaLeechBase)} (base) + ${formatNumber(manaLeechBonusTotal)} (charms) = <strong>${formatNumber(manaLeechTotal)}</strong>`;
+        });
 
         // ----- Renderizar tabela -----
         function renderTable() {
@@ -469,7 +513,7 @@
                 tdMajorLevel.appendChild(majorLevelSelect);
                 row.appendChild(tdMajorLevel);
 
-                // Minor Charm
+                // Minor Charm (Leech)
                 const tdMinor = document.createElement('td');
                 const minorSelect = document.createElement('select');
                 minorSelect.dataset.index = index;
@@ -504,19 +548,19 @@
                 // Dano Major
                 const tdDmgMajor = document.createElement('td');
                 tdDmgMajor.className = 'dmg-major';
-                tdDmgMajor.textContent = calculateMajorDamage(m).toFixed(2);
+                tdDmgMajor.textContent = formatNumber(calculateMajorDamage(m));
                 row.appendChild(tdDmgMajor);
 
-                // Dano Minor
+                // Dano Minor (sempre 0)
                 const tdDmgMinor = document.createElement('td');
                 tdDmgMinor.className = 'dmg-minor';
-                tdDmgMinor.textContent = calculateMinorDamage(m).toFixed(2);
+                tdDmgMinor.textContent = '0,00';
                 row.appendChild(tdDmgMinor);
 
                 // Total/h (soma)
                 const tdTotal = document.createElement('td');
-                const totalPerMob = calculateMajorDamage(m) + calculateMinorDamage(m);
-                tdTotal.textContent = (totalPerMob * (m.qty || 0)).toFixed(2);
+                const totalPerMob = calculateMajorDamage(m) * (m.qty || 0);
+                tdTotal.textContent = formatNumber(totalPerMob);
                 row.appendChild(tdTotal);
 
                 tableBody.appendChild(row);
@@ -530,14 +574,12 @@
                 const mob = monsters[index];
                 if (!mob) return;
                 const majorDmg = calculateMajorDamage(mob);
-                const minorDmg = calculateMinorDamage(mob);
-                const totalPerMob = majorDmg + minorDmg;
+                const totalPerMob = majorDmg * (mob.qty || 0);
                 const tdMajor = row.querySelector('td:nth-child(9)');
-                const tdMinor = row.querySelector('td:nth-child(10)');
                 const tdTotal = row.querySelector('td:nth-child(11)');
-                if (tdMajor) tdMajor.textContent = majorDmg.toFixed(2);
-                if (tdMinor) tdMinor.textContent = minorDmg.toFixed(2);
-                if (tdTotal) tdTotal.textContent = (totalPerMob * (mob.qty || 0)).toFixed(2);
+                if (tdMajor) tdMajor.textContent = formatNumber(majorDmg);
+                if (tdTotal) tdTotal.textContent = formatNumber(totalPerMob);
+                // Minor continua 0
             });
         }
 
@@ -571,7 +613,7 @@
                 weakness: 1.0,
                 majorType: 'Normal',
                 majorLevel: 1,
-                minorType: 'Normal',
+                minorType: 'Vampiric Embrace',
                 minorLevel: 1
             });
             setCurrentMonsters(monsters);
@@ -585,31 +627,6 @@
                 setCurrentMonsters(monsters);
                 renderTable();
             }
-        });
-
-        calcTotalBtn.addEventListener('click', () => {
-            const avgData = calcAverageDamage();
-            const attacksPerHour = parseFloat(attacksPerMinInput.value) * 60;
-            const physDamage = avgData.avg * attacksPerHour;
-
-            const monsters = getCurrentMonsters();
-            let majorTotal = 0, minorTotal = 0;
-            monsters.forEach(m => {
-                majorTotal += calculateMajorDamage(m) * (m.qty || 0);
-                minorTotal += calculateMinorDamage(m) * (m.qty || 0);
-            });
-
-            const totalDamage = physDamage + majorTotal + minorTotal;
-            const lifeLeechPercent = parseFloat(lifeLeechInput.value) / 100;
-            const manaLeechPercent = parseFloat(manaLeechInput.value) / 100;
-            const totalLifeLeech = totalDamage * lifeLeechPercent;
-            const totalManaLeech = totalDamage * manaLeechPercent;
-
-            totalResult.innerHTML = `Dano Físico/h: <strong>${physDamage.toFixed(0)}</strong> | ` +
-                                    `Dano Major/h: <strong>${majorTotal.toFixed(0)}</strong> | ` +
-                                    `Dano Minor/h: <strong>${minorTotal.toFixed(0)}</strong> | ` +
-                                    `Dano Total/h: <strong>${totalDamage.toFixed(0)}</strong><br>` +
-                                    `Sustain: Life Leech/h: <strong>${totalLifeLeech.toFixed(0)}</strong> | Mana Leech/h: <strong>${totalManaLeech.toFixed(0)}</strong>`;
         });
 
         function switchHunt(huntId) {
