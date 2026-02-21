@@ -32,8 +32,8 @@
 </head>
 <body>
 <div class="container">
-    <h1>⚔️ Calculadora de Dano - Tibia (Apenas 3 Minor Charms)</h1>
-    <p style="color:#ccc;">Major Charms causam dano. Minor Charms: Vampiric Embrace (aumenta Life Leech), Void's Call (aumenta Mana Leech) e Void Inversion (sem efeito). Porcentagens por nível conforme solicitado.</p>
+    <h1>⚔️ Calculadora de Dano - Tibia (Minor com opção Nenhum)</h1>
+    <p style="color:#ccc;">Major Charms causam dano. Minor Charms: Vampiric Embrace (aumenta Life Leech), Void's Call (aumenta Mana Leech), Void Inversion (sem efeito) e a opção "Nenhum" para não usar minor.</p>
     <p style="color:#aaa;">🔒 A exclusão de hunts é restrita ao administrador.</p>
 
     <!-- Gerenciamento de Hunts -->
@@ -132,7 +132,7 @@
     </div>
 
     <!-- Créditos -->
-    <div class="credits">Criado por Cedine Rush · Versão com apenas 3 Minor Charms</div>
+    <div class="credits">Criado por Cedine Rush · Versão com opção Nenhum</div>
 </div>
 
 <script>
@@ -208,8 +208,9 @@
             'frost': { 1: 0.05, 2: 0.06, 3: 0.07 }
         };
 
-        // ----- Multiplicadores dos Minor Charms (apenas os três) -----
+        // ----- Multiplicadores dos Minor Charms (incluindo "Nenhum") -----
         const MINOR_MULTIPLIERS = {
+            'nenhum': { 1: 0, 2: 0, 3: 0 },
             'vampiric embrace': { 1: 0.016, 2: 0.024, 3: 0.032 },
             'void\'s call': { 1: 0.008, 2: 0.012, 3: 0.016 },
             'void inversion': { 1: 0, 2: 0, 3: 0 }
@@ -226,6 +227,7 @@
         ];
 
         const MINOR_OPTIONS = [
+            'Nenhum',
             'Vampiric Embrace',
             'Void\'s Call',
             'Void Inversion'
@@ -239,7 +241,7 @@
         }
 
         function getMinorMultiplier(type, level) {
-            const key = (type || 'vampiric embrace').toLowerCase().trim();
+            const key = (type || 'nenhum').toLowerCase().trim();
             const lvl = parseInt(level) || 1;
             return MINOR_MULTIPLIERS[key]?.[lvl] || 0;
         }
@@ -269,7 +271,7 @@
                 h.monsters.forEach(m => {
                     if (!m.majorType) m.majorType = 'Normal';
                     if (!m.majorLevel) m.majorLevel = 1;
-                    if (!m.minorType) m.minorType = 'Vampiric Embrace';
+                    if (!m.minorType) m.minorType = 'Nenhum';
                     if (!m.minorLevel) m.minorLevel = 1;
                 });
             });
@@ -287,7 +289,7 @@
                     monsters: [
                         { name: 'Bulltaur Alchemist', qty: 614, hp: 5960, weakness: 1.2, majorType: 'Normal', majorLevel: 1, minorType: 'Vampiric Embrace', minorLevel: 2 },
                         { name: 'Bulltaur Brute', qty: 607, hp: 6560, weakness: 1.1, majorType: 'Divine Wrath', majorLevel: 2, minorType: 'Void\'s Call', minorLevel: 1 },
-                        { name: 'Bulltaur Forgepriest', qty: 396, hp: 6840, weakness: 1.1, majorType: 'Freeze', majorLevel: 3, minorType: 'Void Inversion', minorLevel: 1 }
+                        { name: 'Bulltaur Forgepriest', qty: 396, hp: 6840, weakness: 1.1, majorType: 'Freeze', majorLevel: 3, minorType: 'Nenhum', minorLevel: 1 }
                     ]
                 },
                 {
@@ -297,7 +299,7 @@
                         { name: 'Adult Goanna', qty: 359, hp: 8300, weakness: 1.2, majorType: 'Zap', majorLevel: 2, minorType: 'Vampiric Embrace', minorLevel: 1 },
                         { name: 'Manticore', qty: 340, hp: 6700, weakness: 1.2, majorType: 'Freeze', majorLevel: 1, minorType: 'Void\'s Call', minorLevel: 3 },
                         { name: 'Young Goanna', qty: 319, hp: 6944, weakness: 1.2, majorType: 'Zap', majorLevel: 2, minorType: 'Void Inversion', minorLevel: 2 },
-                        { name: 'Feral Sphinx', qty: 292, hp: 9800, weakness: 1.15, majorType: 'Freeze', majorLevel: 3, minorType: 'Vampiric Embrace', minorLevel: 2 }
+                        { name: 'Feral Sphinx', qty: 292, hp: 9800, weakness: 1.15, majorType: 'Freeze', majorLevel: 3, minorType: 'Nenhum', minorLevel: 1 }
                     ]
                 }
             ];
@@ -395,7 +397,7 @@
                 majorTotal += totalMobDmg;
 
                 // Calcular bônus de leech do minor charm
-                const minorType = (m.minorType || '').toLowerCase().trim();
+                const minorType = (m.minorType || 'nenhum').toLowerCase().trim();
                 const minorLevel = parseInt(m.minorLevel) || 1;
                 if (minorType.includes('vampiric')) {
                     const bonus = getMinorMultiplier('vampiric embrace', minorLevel);
@@ -404,7 +406,7 @@
                     const bonus = getMinorMultiplier('void\'s call', minorLevel);
                     manaLeechBonusTotal += totalMobDmg * bonus;
                 }
-                // Void Inversion não adiciona nada
+                // Void Inversion e Nenhum não adicionam nada
             });
 
             const totalDamage = physDamage + majorTotal;
@@ -609,7 +611,7 @@
                 weakness: 1.0,
                 majorType: 'Normal',
                 majorLevel: 1,
-                minorType: 'Vampiric Embrace',
+                minorType: 'Nenhum',
                 minorLevel: 1
             });
             setCurrentMonsters(monsters);
