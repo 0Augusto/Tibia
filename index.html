@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Dano - Tibia (Charms de Leech)</title>
+    <title>Calculadora de Dano - Tibia (Apenas 3 Minor Charms)</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: #1e1e2f; color: #ddd; max-width: 1400px; margin: 20px auto; padding: 0 20px; }
@@ -32,8 +32,8 @@
 </head>
 <body>
 <div class="container">
-    <h1>⚔️ Calculadora de Dano - Tibia (Charms de Leech)</h1>
-    <p style="color:#ccc;">Major Charms causam dano. Vampiric Embrace aumenta Life Leech; Void's Call aumenta Mana Leech. Void Inversion (sem dano).</p>
+    <h1>⚔️ Calculadora de Dano - Tibia (Apenas 3 Minor Charms)</h1>
+    <p style="color:#ccc;">Major Charms causam dano. Minor Charms: Vampiric Embrace (aumenta Life Leech), Void's Call (aumenta Mana Leech) e Void Inversion (sem efeito). Porcentagens por nível conforme solicitado.</p>
     <p style="color:#aaa;">🔒 A exclusão de hunts é restrita ao administrador. Para ativar o modo admin, adicione <code>?admin=true</code> na URL.</p>
 
     <!-- Gerenciamento de Hunts -->
@@ -132,7 +132,7 @@
     </div>
 
     <!-- Créditos -->
-    <div class="credits">Criado por Cedine Rush · Versão com Leech por Charms</div>
+    <div class="credits">Criado por Cedine Rush · Versão com apenas 3 Minor Charms</div>
 </div>
 
 <script>
@@ -164,9 +164,7 @@
         // ----- Formatação de números (duas casas decimais, ponto como separador de milhar) -----
         function formatNumber(value) {
             if (value === null || isNaN(value)) return '0,00';
-            // Fixar duas casas decimais
             let parts = value.toFixed(2).split('.');
-            // Separador de milhar: adicionar pontos a cada 3 dígitos na parte inteira
             let integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
             return integerPart + ',' + parts[1];
         }
@@ -210,11 +208,11 @@
             'frost': { 1: 0.05, 2: 0.06, 3: 0.07 }
         };
 
-        // ----- Multiplicadores dos Minor Charms (agora só influenciam leech, dano = 0) -----
+        // ----- Multiplicadores dos Minor Charms (apenas os três) -----
         const MINOR_MULTIPLIERS = {
-            'vampiric embrace': { 1: 0.016, 2: 0.024, 3: 0.032 }, // life leech adicional
-            'void\'s call': { 1: 0.008, 2: 0.012, 3: 0.016 },     // mana leech adicional
-            'void inversion': { 1: 0, 2: 0, 3: 0 }                // sem efeito (placeholder)
+            'vampiric embrace': { 1: 0.016, 2: 0.024, 3: 0.032 },
+            'void\'s call': { 1: 0.008, 2: 0.012, 3: 0.016 },
+            'void inversion': { 1: 0, 2: 0, 3: 0 }
         };
 
         // ----- Listas para os selects -----
@@ -345,9 +343,8 @@
             return (m.hp || 0) * mult * (m.weakness || 1.0);
         }
 
-        // Minor charms NÃO causam dano
         function calculateMinorDamage(m) {
-            return 0;
+            return 0; // Minor charms não causam dano
         }
 
         // ----- Cálculo do ataque base -----
@@ -394,7 +391,7 @@
             monsters.forEach(m => {
                 const majorDmg = calculateMajorDamage(m);
                 const qty = m.qty || 0;
-                const totalMobDmg = majorDmg * qty; // minor não contribui com dano
+                const totalMobDmg = majorDmg * qty;
                 majorTotal += totalMobDmg;
 
                 // Calcular bônus de leech do minor charm
@@ -410,7 +407,7 @@
                 // Void Inversion não adiciona nada
             });
 
-            const totalDamage = physDamage + majorTotal; // minor não adiciona dano
+            const totalDamage = physDamage + majorTotal;
             const lifeLeechBasePercent = parseFloat(lifeLeechInput.value) / 100;
             const manaLeechBasePercent = parseFloat(manaLeechInput.value) / 100;
             const lifeLeechBase = totalDamage * lifeLeechBasePercent;
@@ -579,7 +576,6 @@
                 const tdTotal = row.querySelector('td:nth-child(11)');
                 if (tdMajor) tdMajor.textContent = formatNumber(majorDmg);
                 if (tdTotal) tdTotal.textContent = formatNumber(totalPerMob);
-                // Minor continua 0
             });
         }
 
