@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Dano - Tibia</title>
+    <title>Calculadora de Dano - Tibia (Corrigida v5)</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: #1e1e2f; color: #ddd; max-width: 1400px; margin: 20px auto; padding: 0 20px; }
@@ -38,7 +38,7 @@
 </head>
 <body>
 <div class="container">
-    <h1>⚔️ Calculadora de Dano - Tibia</h1>
+    <h1>⚔️ Calculadora de Dano - Tibia (Corrigida v5)</h1>
     
     <!-- Seção de instruções (homepage) -->
     <div class="guide">
@@ -193,7 +193,7 @@
     </div>
 
     <!-- Créditos -->
-    <div class="credits">Criado por Cedine Rush · Versão Corrigida (Classes CSS)</div>
+    <div class="credits">Criado por Cedine Rush · Versão Corrigida (Atualização por Índices)</div>
 </div>
 
 <script>
@@ -248,7 +248,6 @@
         const STORAGE_KEY = 'tibiaDamageHunts';
 
         // ----- Multiplicadores de Major Charms (causam dano) -----
-        // A opção "Normal" agora tem multiplicador 0 (não causa dano)
         const MAJOR_MULTIPLIERS = {
             'normal': { 1: 0, 2: 0, 3: 0 },
             'low blow': { 1: 0.08, 2: 0.08, 3: 0.08 },
@@ -627,21 +626,18 @@
                 tdMinorLevel.appendChild(minorLevelSelect);
                 row.appendChild(tdMinorLevel);
 
-                // Dano Major (com classe para atualização)
+                // Dano Major (índice 8)
                 const tdDmgMajor = document.createElement('td');
-                tdDmgMajor.className = 'dmg-major';
                 tdDmgMajor.textContent = formatNumber(calculateMajorDamage(m));
                 row.appendChild(tdDmgMajor);
 
-                // Dano Minor (sempre 0)
+                // Dano Minor (índice 9)
                 const tdDmgMinor = document.createElement('td');
-                tdDmgMinor.className = 'dmg-minor';
                 tdDmgMinor.textContent = '0,00';
                 row.appendChild(tdDmgMinor);
 
-                // Total/h (com classe para atualização)
+                // Total/h (índice 10)
                 const tdTotal = document.createElement('td');
-                tdTotal.className = 'total-mob';
                 const totalPerMob = calculateMajorDamage(m) * (m.qty || 0);
                 tdTotal.textContent = formatNumber(totalPerMob);
                 row.appendChild(tdTotal);
@@ -650,7 +646,7 @@
             });
         }
 
-        // ----- Atualiza os campos de dano na tabela usando as classes CSS -----
+        // ----- Atualiza os campos de dano na tabela usando índices fixos -----
         function updateDamageDisplays() {
             const monsters = getCurrentMonsters();
             const rows = tableBody.querySelectorAll('tr');
@@ -659,10 +655,11 @@
                 if (!mob) return;
                 const majorDmg = calculateMajorDamage(mob);
                 const totalPerMob = majorDmg * (mob.qty || 0);
-                const tdMajor = row.querySelector('.dmg-major');
-                const tdTotal = row.querySelector('.total-mob');
-                if (tdMajor) tdMajor.textContent = formatNumber(majorDmg);
-                if (tdTotal) tdTotal.textContent = formatNumber(totalPerMob);
+                // Índices: 0 Nome, 1 Qtd, 2 Vida, 3 Fraqueza, 4 Major, 5 Nível Major, 6 Minor, 7 Nível Minor, 8 Dano Major, 9 Dano Minor, 10 Total
+                const cellDmgMajor = row.cells[8];
+                const cellTotal = row.cells[10];
+                if (cellDmgMajor) cellDmgMajor.textContent = formatNumber(majorDmg);
+                if (cellTotal) cellTotal.textContent = formatNumber(totalPerMob);
                 // Dano Minor permanece 0, não precisa atualizar
             });
         }
