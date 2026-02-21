@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Dano - Tibia (Corrigida)</title>
+    <title>Calculadora de Dano - Tibia</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: #1e1e2f; color: #ddd; max-width: 1400px; margin: 20px auto; padding: 0 20px; }
@@ -38,7 +38,7 @@
 </head>
 <body>
 <div class="container">
-    <h1>⚔️ Calculadora de Dano - Tibia (Corrigida)</h1>
+    <h1>⚔️ Calculadora de Dano - Tibia</h1>
     
     <!-- Seção de instruções (homepage) -->
     <div class="guide">
@@ -193,7 +193,7 @@
     </div>
 
     <!-- Créditos -->
-    <div class="credits">Criado por Cedine Rush · Versão Corrigida (Normal sem dano)</div>
+    <div class="credits">Criado por Cedine Rush · Versão Corrigida (Atualização instantânea)</div>
 </div>
 
 <script>
@@ -250,7 +250,7 @@
         // ----- Multiplicadores de Major Charms (causam dano) -----
         // A opção "Normal" agora tem multiplicador 0 (não causa dano)
         const MAJOR_MULTIPLIERS = {
-            'normal': { 1: 0, 2: 0, 3: 0 },  // <-- CORREÇÃO: Normal não causa dano
+            'normal': { 1: 0, 2: 0, 3: 0 },
             'low blow': { 1: 0.08, 2: 0.08, 3: 0.08 },
             'savage blow': { 1: 0.4, 2: 0.4, 3: 0.4 },
             'divine wrath': { 1: 0.05, 2: 0.06, 3: 0.07 },
@@ -300,7 +300,7 @@
         function getMajorMultiplier(type, level) {
             const key = (type || 'normal').toLowerCase().trim();
             const lvl = parseInt(level) || 1;
-            return MAJOR_MULTIPLIERS[key]?.[lvl] || 0; // Fallback 0 para segurança
+            return MAJOR_MULTIPLIERS[key]?.[lvl] || 0;
         }
 
         function getMinorMultiplier(type, level) {
@@ -627,7 +627,7 @@
                 tdMinorLevel.appendChild(minorLevelSelect);
                 row.appendChild(tdMinorLevel);
 
-                // Dano Major
+                // Dano Major (com classe)
                 const tdDmgMajor = document.createElement('td');
                 tdDmgMajor.className = 'dmg-major';
                 tdDmgMajor.textContent = formatNumber(calculateMajorDamage(m));
@@ -639,8 +639,9 @@
                 tdDmgMinor.textContent = '0,00';
                 row.appendChild(tdDmgMinor);
 
-                // Total/h (soma)
+                // Total/h (com classe)
                 const tdTotal = document.createElement('td');
+                tdTotal.className = 'total-mob';
                 const totalPerMob = calculateMajorDamage(m) * (m.qty || 0);
                 tdTotal.textContent = formatNumber(totalPerMob);
                 row.appendChild(tdTotal);
@@ -649,6 +650,7 @@
             });
         }
 
+        // ----- Atualiza os campos de dano na tabela usando as classes -----
         function updateDamageDisplays() {
             const monsters = getCurrentMonsters();
             const rows = tableBody.querySelectorAll('tr');
@@ -657,13 +659,15 @@
                 if (!mob) return;
                 const majorDmg = calculateMajorDamage(mob);
                 const totalPerMob = majorDmg * (mob.qty || 0);
-                const tdMajor = row.querySelector('td:nth-child(9)');
-                const tdTotal = row.querySelector('td:nth-child(11)');
+                const tdMajor = row.querySelector('.dmg-major');
+                const tdTotal = row.querySelector('.total-mob');
                 if (tdMajor) tdMajor.textContent = formatNumber(majorDmg);
                 if (tdTotal) tdTotal.textContent = formatNumber(totalPerMob);
+                // Minor continua 0, não precisa atualizar
             });
         }
 
+        // ----- Handler para quando um input é alterado -----
         function handleInputChange(e) {
             const input = e.target;
             const index = input.dataset.index;
@@ -681,7 +685,7 @@
             if (monsters[index]) {
                 monsters[index][field] = value;
                 setCurrentMonsters(monsters);
-                updateDamageDisplays();
+                updateDamageDisplays(); // Atualiza a tabela imediatamente
             }
         }
 
