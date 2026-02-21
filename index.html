@@ -9,8 +9,14 @@
         body { background: #1e1e2f; color: #ddd; max-width: 1400px; margin: 20px auto; padding: 0 20px; }
         h1, h2, h3 { color: #f0b87b; }
         .container { background: #2a2a3a; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
+        .guide { background: #1e1e2f; padding: 20px; border-radius: 8px; margin-bottom: 30px; border-left: 5px solid #f0b87b; }
+        .guide p { margin: 10px 0; line-height: 1.6; }
+        .guide ul { margin: 10px 0 10px 20px; }
+        .guide li { margin: 5px 0; }
+        .guide code { background: #3a3a4f; padding: 2px 6px; border-radius: 4px; color: #ffd966; }
         .param-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .param-item { display: flex; flex-direction: column; }
+        .param-item-row { display: flex; flex-direction: row; align-items: center; gap: 10px; grid-column: span 2; }
         label { font-size: 0.9em; color: #aaa; margin-bottom: 3px; }
         input, select { background: #1e1e2f; border: 1px solid #3a3a4f; color: #fff; padding: 8px; border-radius: 5px; font-size: 1em; }
         input:focus, select:focus { outline: none; border-color: #f0b87b; }
@@ -33,8 +39,50 @@
 <body>
 <div class="container">
     <h1>⚔️ Calculadora de Dano - Tibia</h1>
-    <p style="color:#ccc;">Major Charms causam dano. Minor Charms: Vampiric Embrace (aumenta Life Leech), Void's Call (aumenta Mana Leech), Void Inversion (sem efeito) e a opção "Nenhum" para não usar minor.</p>
-    <p style="color:#aaa;">🔒 A exclusão de hunts é restrita ao administrador.</p>
+    
+    <!-- Seção de instruções (homepage) -->
+    <div class="guide">
+        <h2>📖 Como preencher os campos para resultados precisos</h2>
+        <p>Esta calculadora considera os atributos do seu personagem, o tipo de skill, os charms (Major e Minor) e a quantidade de monstros por hora para estimar o dano total e o sustain (life/mana leech). Siga as orientações abaixo:</p>
+        
+        <h3>⚙️ Parâmetros do Personagem</h3>
+        <ul>
+            <li><strong>Nível do Personagem:</strong> Seu level atual. Influencia o dano base.</li>
+            <li><strong>Tipo de Skill:</strong> Escolha entre Distance, Magic Level, Fist Fighting, Axe, Club ou Sword. O cálculo do dano base se ajusta automaticamente.</li>
+            <li><strong>Valor do Skill:</strong> Seu valor de skill (ex: 163 para distance, 120 para magic level, etc.).</li>
+            <li><strong>Bônus de Equipamento:</strong> Soma de todos os bônus de ataque de equipamentos (ex: 44).</li>
+            <li><strong>Bônus Diversos:</strong> Outros bônus como Combat Tactics, imbuements que aumentam o ataque, etc. (ex: 38).</li>
+            <li><strong>Dano Extra Auto (Shielding):</strong> Valor fixo adicionado ao ataque (ex: 9).</li>
+            <li><strong>Chance Crítico (%):</strong> Percentual de chance de acerto crítico (ex: 10%).</li>
+            <li><strong>Dano Crítico Extra (%):</strong> Percentual adicional de dano no crítico (ex: 57,5%).</li>
+            <li><strong>Life Leech Base (%):</strong> Soma de todas as fontes de life leech (imbuements, wheel of destiny). Ex: se você tem 50% de um imbuement e 0,75% da roda, coloque 50,75.</li>
+            <li><strong>Mana Leech Base (%):</strong> Soma de todas as fontes de mana leech (imbuements, wheel). Ex: 16% + 0,25% = 16,25.</li>
+            <li><strong>Ataques por minuto:</strong> Quantos ataques físicos você realiza por minuto (padrão: 30 para armas de distância, 25 para armas corpo a corpo, 20 para magia).</li>
+        </ul>
+        
+        <h3>👾 Monstros da Hunt</h3>
+        <ul>
+            <li><strong>Nome:</strong> Identificação do monstro (apenas para referência).</li>
+            <li><strong>Qtd/h:</strong> Quantos monstros você mata por hora (estimativa).</li>
+            <li><strong>Vida:</strong> Pontos de vida do monstro.</li>
+            <li><strong>Fraqueza:</strong> Multiplicador de dano elemental (ex: 1.2 para 120%, 1.0 para neutro).</li>
+            <li><strong>Major Charm:</strong> Escolha o charm que causa dano (Normal, Low Blow, Savage Blow, etc.).</li>
+            <li><strong>Nível (Major):</strong> Nível do charm (1, 2 ou 3). As porcentagens são automáticas.</li>
+            <li><strong>Minor Charm (Leech):</strong> Escolha um charm de leech: <em>Vampiric Embrace</em> (aumenta life leech), <em>Void's Call</em> (aumenta mana leech), <em>Void Inversion</em> (sem efeito) ou <em>Nenhum</em>.</li>
+            <li><strong>Nível (Minor):</strong> Nível do minor charm. As porcentagens de bônus de leech são:
+                <ul>
+                    <li>Vampiric Embrace: 1,6% (lvl1), 2,4% (lvl2), 3,2% (lvl3)</li>
+                    <li>Void's Call: 0,8% (lvl1), 1,2% (lvl2), 1,6% (lvl3)</li>
+                    <li>Void Inversion: 0% (qualquer nível)</li>
+                </ul>
+            </li>
+        </ul>
+        
+        <p><strong>⚠️ Importante:</strong> Os valores de <code>Life Leech Base</code> e <code>Mana Leech Base</code> devem incluir <strong>todos</strong> os imbuements e bônus da Roda de Habilidades que você possui. Por exemplo, se você tem um imbuement de 50% life leech e a roda concede 0,75%, o total é 50,75%.</p>
+        <p>Os minor charms de leech <strong>não causam dano</strong>, apenas aumentam o respectivo leech sobre o dano causado ao monstro (Major + físico). O bônus é somado ao leech base no resultado final.</p>
+        <p>Para adicionar ou remover monstros, use os botões abaixo da tabela. Os dados são salvos automaticamente no seu navegador.</p>
+        <p style="color:#f0b87b;">🔒 A exclusão de hunts é restrita ao administrador.</p>
+    </div>
 
     <!-- Gerenciamento de Hunts -->
     <div class="hunt-bar">
@@ -52,9 +100,22 @@
             <label>Nível do Personagem</label>
             <input type="number" id="level" value="107" step="1" min="1">
         </div>
-        <div class="param-item">
-            <label>Skill de Distância</label>
-            <input type="number" id="skill" value="163" step="1" min="0">
+        <div class="param-item-row">
+            <div style="flex:1;">
+                <label>Tipo de Skill</label>
+                <select id="skillType">
+                    <option value="distance" selected>Distance</option>
+                    <option value="magic">Magic Level</option>
+                    <option value="fist">Fist Fighting</option>
+                    <option value="axe">Axe</option>
+                    <option value="club">Club</option>
+                    <option value="sword">Sword</option>
+                </select>
+            </div>
+            <div style="flex:1;">
+                <label>Valor do Skill</label>
+                <input type="number" id="skillValue" value="163" step="1" min="0">
+            </div>
         </div>
         <div class="param-item">
             <label>Bônus de Equipamento</label>
@@ -132,14 +193,15 @@
     </div>
 
     <!-- Créditos -->
-    <div class="credits">Criado por Cedine Rush · Versão com opção Nenhum</div>
+    <div class="credits">Criado por Cedine Rush · Versão com Todos os Skills</div>
 </div>
 
 <script>
     (function() {
         // ----- Elementos do DOM -----
         const levelInput = document.getElementById('level');
-        const skillInput = document.getElementById('skill');
+        const skillTypeSelect = document.getElementById('skillType');
+        const skillValueInput = document.getElementById('skillValue');
         const bonusEquipInput = document.getElementById('bonusEquip');
         const bonusOutrosInput = document.getElementById('bonusOutros');
         const autoExtraInput = document.getElementById('autoExtra');
@@ -246,6 +308,47 @@
             return MINOR_MULTIPLIERS[key]?.[lvl] || 0;
         }
 
+        // ----- Cálculo do ataque base considerando o tipo de skill -----
+        function calculateAttackBase() {
+            const level = parseFloat(levelInput.value) || 107;
+            const skillType = skillTypeSelect.value;
+            const skillValue = parseFloat(skillValueInput.value) || 0;
+            const bonusEquip = parseFloat(bonusEquipInput.value) || 0;
+            const bonusOutros = parseFloat(bonusOutrosInput.value) || 0;
+            
+            // Fator de conversão de level para flat damage: aproximadamente 0.95 por level
+            const flatBonus = Math.round(level * 0.95);
+            
+            // Diferentes skills têm diferentes fórmulas de dano base
+            // Aproximações baseadas nas mecânicas do Tibia
+            let skillContribution = 0;
+            
+            switch(skillType) {
+                case 'distance':
+                    // Distância: skill contribui diretamente (ex: 163)
+                    skillContribution = skillValue;
+                    break;
+                case 'magic':
+                    // Magic level: contribuição menor (cerca de 60% do valor)
+                    skillContribution = Math.round(skillValue * 0.6);
+                    break;
+                case 'fist':
+                    // Fist fighting: similar a distance, mas sem bônus de weapon
+                    skillContribution = skillValue;
+                    break;
+                case 'axe':
+                case 'club':
+                case 'sword':
+                    // Corpo a corpo: contribuição direta
+                    skillContribution = skillValue;
+                    break;
+                default:
+                    skillContribution = skillValue;
+            }
+            
+            return flatBonus + skillContribution + bonusEquip + bonusOutros;
+        }
+
         // ----- Utilitários -----
         function generateId() {
             return Date.now() + '-' + Math.random().toString(36).substr(2, 9);
@@ -349,16 +452,6 @@
             return 0; // Minor charms não causam dano
         }
 
-        // ----- Cálculo do ataque base -----
-        function calculateAttackBase() {
-            const level = parseFloat(levelInput.value) || 107;
-            const skill = parseFloat(skillInput.value) || 163;
-            const bonusEquip = parseFloat(bonusEquipInput.value) || 44;
-            const bonusOutros = parseFloat(bonusOutrosInput.value) || 38;
-            const flatBonus = Math.round(level * 0.95);
-            return flatBonus + skill + bonusEquip + bonusOutros;
-        }
-
         // ----- Dano médio por ataque -----
         function calcAverageDamage() {
             const attackBase = calculateAttackBase();
@@ -371,9 +464,11 @@
             const avg = (1 - critChance) * normal + critChance * crit;
             const lifeLeech = avg * (parseFloat(lifeLeechInput.value) / 100);
             const manaLeech = avg * (parseFloat(manaLeechInput.value) / 100);
+            
+            const skillType = skillTypeSelect.options[skillTypeSelect.selectedIndex].text;
             avgResult.innerHTML = `Dano médio/ataque: <strong>${formatNumber(avg)}</strong><br>` +
                                   `Life Leech (base): ${formatNumber(lifeLeech)} | Mana Leech (base): ${formatNumber(manaLeech)}<br>` +
-                                  `(Attack base: ${attackBase} + auto ${autoExtra} = ${baseDamage})`;
+                                  `(Skill: ${skillType} ${skillValueInput.value} → contribuição ${attackBase - Math.round(parseFloat(levelInput.value) * 0.95) - bonusEquipInput.valueAsNumber - bonusOutrosInput.valueAsNumber})`;
             return { avg, lifeLeech, manaLeech, baseDamage };
         }
 
