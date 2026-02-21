@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Dano - Tibia (Level, Skill e Charms)</title>
+    <title>Calculadora de Dano - Tibia (Sustain Total)</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: #1e1e2f; color: #ddd; max-width: 1200px; margin: 20px auto; padding: 0 20px; }
@@ -32,8 +32,8 @@
 </head>
 <body>
 <div class="container">
-    <h1>⚔️ Calculadora de Dano - Tibia (Level, Skill e Charms)</h1>
-    <p style="color:#ccc;">Configure level, skill e bônus. Agora com todas as Major e Minor Charms e níveis 1, 2 e 3.</p>
+    <h1>⚔️ Calculadora de Dano - Tibia (Sustain Total)</h1>
+    <p style="color:#ccc;">Level, skill, major e minor charms com níveis. O sustain (life/mana leech) agora é calculado sobre o dano total (físico + charms).</p>
     <p style="color:#aaa;">🔒 A exclusão de hunts é restrita ao administrador. Para ativar o modo admin, adicione <code>?admin=true</code> na URL.</p>
 
     <!-- Gerenciamento de Hunts -->
@@ -122,13 +122,14 @@
         </tbody>
     </table>
 
-    <!-- Resultado total -->
+    <!-- Resultado total com sustain -->
     <div class="total-footer" id="totalResult">
-        Dano Físico/h: 0 | Dano Charms/h: 0 | Dano Total/h: 0
+        Dano Físico/h: 0 | Dano Charms/h: 0 | Dano Total/h: 0<br>
+        Sustain: Life Leech/h: 0 | Mana Leech/h: 0
     </div>
 
     <!-- Créditos -->
-    <div class="credits">Criado por Cedine Rush · Versão com Level, Skill e Charms Completos</div>
+    <div class="credits">Criado por Cedine Rush · Versão com Sustain Total</div>
 </div>
 
 <script>
@@ -196,7 +197,7 @@
             'gut': { 1: 0.10, 2: 0.12, 3: 0.14 }, // Gut 10/12/14%
             'adrenaline burst': { 1: 0, 2: 0, 3: 0 }, // Sem dano
             'momentum': { 1: 0, 2: 0, 3: 0 }, // Sem dano
-            'vampirism': { 1: 0, 2: 0, 3: 0 }, // Sem dano
+            'vampirism': { 1: 0, 2: 0, 3: 0 }, // Sem dano (apenas leech, não incluso aqui)
             'venom': { 1: 0.05, 2: 0.06, 3: 0.07 },
             'scorch': { 1: 0.05, 2: 0.06, 3: 0.07 },
             'frost': { 1: 0.05, 2: 0.06, 3: 0.07 },
@@ -224,8 +225,8 @@
                 return CHARM_MULTIPLIERS[key][levelNum] || CHARM_MULTIPLIERS[key][1] || 0;
             }
             
-            // Fallback para charms desconhecidos (ex: se alguém digitar um nome não listado)
-            return 0.05; // padrão 5%
+            // Fallback para charms desconhecidos
+            return 0.05;
         }
 
         // ----- Lista completa de charms para o select (ordenada) -----
@@ -380,8 +381,7 @@
             const bonusEquip = parseFloat(bonusEquipInput.value) || 44;
             const bonusOutros = parseFloat(bonusOutrosInput.value) || 38;
             
-            // Fator de conversão de level para flat damage: aproximadamente 0.95 por level (baseado no exemplo)
-            // Ajustado para dar 102 para level 107 (107*0.95 = 101.65, arredondado para 102)
+            // Fator de conversão de level para flat damage: aproximadamente 0.95 por level
             const flatBonus = Math.round(level * 0.95);
             
             return flatBonus + skill + bonusEquip + bonusOutros;
@@ -412,7 +412,7 @@
 
         calcAvgBtn.addEventListener('click', calcAverageDamage);
 
-        // ----- Calcular totais por hora -----
+        // ----- Calcular totais por hora com sustain sobre dano total -----
         calcTotalBtn.addEventListener('click', () => {
             const avgData = calcAverageDamage();
             const attacksPerHour = parseFloat(attacksPerMinInput.value) * 60;
@@ -424,11 +424,16 @@
                 charmDamageTotal += calculateCharmDamage(m) * (m.qty || 0);
             });
 
-            const total = physDamage + charmDamageTotal;
+            const totalDamage = physDamage + charmDamageTotal;
+            const lifeLeechPercent = parseFloat(lifeLeechInput.value) / 100;
+            const manaLeechPercent = parseFloat(manaLeechInput.value) / 100;
+            const totalLifeLeech = totalDamage * lifeLeechPercent;
+            const totalManaLeech = totalDamage * manaLeechPercent;
 
             totalResult.innerHTML = `Dano Físico/h: <strong>${physDamage.toFixed(0)}</strong> | ` +
                                     `Dano Charms/h: <strong>${charmDamageTotal.toFixed(0)}</strong> | ` +
-                                    `Dano Total/h: <strong>${total.toFixed(0)}</strong>`;
+                                    `Dano Total/h: <strong>${totalDamage.toFixed(0)}</strong><br>` +
+                                    `Sustain: Life Leech/h: <strong>${totalLifeLeech.toFixed(0)}</strong> | Mana Leech/h: <strong>${totalManaLeech.toFixed(0)}</strong>`;
         });
 
         // ----- Renderizar tabela de monstros da hunt atual -----
