@@ -18,6 +18,7 @@
         .param-item { display: flex; flex-direction: column; }
         .param-item-row { display: flex; flex-direction: row; align-items: center; gap: 10px; grid-column: span 2; }
         .param-item-row3 { display: flex; flex-direction: row; align-items: center; gap: 10px; grid-column: span 3; }
+        .param-item-row4 { display: flex; flex-direction: row; align-items: center; gap: 10px; grid-column: span 4; }
         label { font-size: 0.9em; color: #aaa; margin-bottom: 3px; }
         input, select { background: #1e1e2f; border: 1px solid #3a3a4f; color: #fff; padding: 8px; border-radius: 5px; font-size: 1em; }
         input:focus, select:focus { outline: none; border-color: #f0b87b; }
@@ -39,12 +40,12 @@
 </head>
 <body>
 <div class="container">
-    <h1>⚔️ Calculadora de Dano - Tibia (Armas e Tiers 0-10)</h1>
+    <h1>⚔️ Calculadora de Dano - Tibia</h1>
     
     <!-- Seção de instruções (homepage) -->
     <div class="guide">
         <h2>📖 Como preencher os campos para resultados precisos</h2>
-        <p>Esta calculadora considera os atributos do seu personagem, o tipo de skill, a arma utilizada com seu respectivo tier (0 a 10), os charms (Major e Minor) e a quantidade de monstros por hora para estimar o dano total e o sustain (life/mana leech).</p>
+        <p>Esta calculadora considera os atributos do seu personagem, o tipo de skill, a arma utilizada com seu respectivo tier (0 a 10), a munição (para bows e crossbows), os charms (Major e Minor) e a quantidade de monstros por hora para estimar o dano total e o sustain (life/mana leech).</p>
         
         <h3>⚙️ Parâmetros do Personagem</h3>
         <ul>
@@ -52,7 +53,8 @@
             <li><strong>Tipo de Skill:</strong> Escolha entre Distance, Magic Level, Fist Fighting, Axe, Club ou Sword.</li>
             <li><strong>Valor do Skill:</strong> Seu valor de skill (ex: 163 para distance).</li>
             <li><strong>Arma Utilizada:</strong> Selecione sua arma na lista. O nome é apenas para referência.</li>
-            <li><strong>Tier da Arma (0-10):</strong> Nível de refinamento da arma. Quanto maior o tier, maior a chance de ativar o efeito <strong>Fatal (Onslaught)</strong>, que adiciona 60% de dano extra [citation:2].</li>
+            <li><strong>Munição:</strong> Para bows e crossbows, selecione a munição adequada. O dano médio da munição é adicionado ao ataque base.</li>
+            <li><strong>Tier da Arma (0-10):</strong> Nível de refinamento da arma. Quanto maior o tier, maior a chance de ativar o efeito <strong>Fatal (Onslaught)</strong>, que adiciona 60% de dano extra.</li>
             <li><strong>Bônus de Equipamento:</strong> Soma de todos os bônus de ataque de equipamentos (ex: 44).</li>
             <li><strong>Bônus Diversos:</strong> Outros bônus como Combat Tactics, imbuements que aumentam o ataque, etc. (ex: 38).</li>
             <li><strong>Dano Extra Auto (Shielding):</strong> Valor fixo adicionado ao ataque (ex: 9).</li>
@@ -77,7 +79,14 @@
             <li><strong>Tier 9:</strong> 7,70% de chance</li>
             <li><strong>Tier 10:</strong> 9,05% de chance</li>
         </ul>
-        <p>O dano extra do Fatal é de <strong>60%</strong> e pode ocorrer simultaneamente com o crítico [citation:1]. O cálculo do dano médio considera ambos os efeitos.</p>
+        <p>O dano extra do Fatal é de <strong>60%</strong> e pode ocorrer simultaneamente com o crítico. O cálculo do dano médio considera ambos os efeitos.</p>
+        
+        <h3>🏹 Munições Disponíveis</h3>
+        <ul>
+            <li><strong>Arrows (para bows):</strong> Arrow (30), Sniper Arrow (50), Prismatic Arrow (65), Diamond Arrow (35), Spectral Arrow (40), Crystalline Arrow (55), Drill Arrow (45), Earth Arrow (40), Flame Arrow (40), Frost Arrow (40), Energy Arrow (40), Vexclaw Arrow (60), Thorn Arrow (50), Divine Arrow (70)</li>
+            <li><strong>Bolts (para crossbows):</strong> Bolt (40), Power Bolt (58), Prismatic Bolt (78), Spectral Bolt (50), Drill Bolt (60), Earth Bolt (50), Flame Bolt (50), Frost Bolt (50), Energy Bolt (50), Vexclaw Bolt (72), Thorn Bolt (60), Divine Bolt (82)</li>
+        </ul>
+        <p>Os valores entre parênteses são os danos médios adicionados ao ataque base.</p>
         
         <h3>👾 Monstros da Hunt</h3>
         <ul>
@@ -91,7 +100,7 @@
             <li><strong>Nível (Minor):</strong> Nível do minor charm. As porcentagens de bônus são automáticas.</li>
         </ul>
         
-        <p><strong>⚠️ Importante:</strong> Os valores de <code>Life Leech Base</code> e <code>Mana Leech Base</code> devem incluir <strong>todos</strong> os imbuements e bônus da Roda de Habilidades. O dano do Fatal é calculado automaticamente com base no tier da arma e incluído no dano físico total.</p>
+        <p><strong>⚠️ Importante:</strong> Os valores de <code>Life Leech Base</code> e <code>Mana Leech Base</code> devem incluir <strong>todos</strong> os imbuements e bônus da Roda de Habilidades. O dano da munição é adicionado ao ataque base, e o dano do Fatal é calculado automaticamente.</p>
         <p style="color:#f0b87b;">🔒 A exclusão de hunts é restrita ao administrador.</p>
     </div>
 
@@ -105,7 +114,7 @@
         <span class="admin-note" id="adminIndicator"></span>
     </div>
 
-    <!-- Parâmetros do personagem com Level, Skill, Arma e Tier -->
+    <!-- Parâmetros do personagem com Level, Skill, Arma, Munição e Tier -->
     <div class="param-grid">
         <div class="param-item">
             <label>Nível do Personagem</label>
@@ -128,10 +137,10 @@
                 <input type="number" id="skillValue" value="163" step="1" min="0">
             </div>
         </div>
-        <div class="param-item-row3">
+        <div class="param-item-row4">
             <div style="flex:2;">
                 <label>Arma Utilizada</label>
-                <select id="weaponSelect">
+                <select id="weaponSelect" onchange="updateAmmoSelect()">
                     <option value="None">Nenhuma / Padrão</option>
                     <option value="Bow of Destruction">Bow of Destruction</option>
                     <option value="Crossbow of Destruction">Crossbow of Destruction</option>
@@ -192,7 +201,13 @@
                     <option value="Rotten Blossom">Rotten Blossom</option>
                 </select>
             </div>
-            <div style="flex:1;">
+            <div style="flex:1.5;">
+                <label>Munição</label>
+                <select id="ammoSelect">
+                    <option value="0">Nenhuma</option>
+                </select>
+            </div>
+            <div style="flex:0.8;">
                 <label>Tier (0-10)</label>
                 <select id="weaponTier">
                     <option value="0">Tier 0 (0%)</option>
@@ -285,7 +300,7 @@
     </div>
 
     <!-- Créditos -->
-    <div class="credits">Criado por Cedine Rush · Versão com Armas e Tiers (0-10)</div>
+    <div class="credits">Criado por Cedine Rush · Versão com Armas, Tiers e Munições</div>
 </div>
 
 <script>
@@ -295,6 +310,7 @@
         const skillTypeSelect = document.getElementById('skillType');
         const skillValueInput = document.getElementById('skillValue');
         const weaponSelect = document.getElementById('weaponSelect');
+        const ammoSelect = document.getElementById('ammoSelect');
         const weaponTier = document.getElementById('weaponTier');
         const bonusEquipInput = document.getElementById('bonusEquip');
         const bonusOutrosInput = document.getElementById('bonusOutros');
@@ -316,6 +332,64 @@
         const renameHuntBtn = document.getElementById('renameHuntBtn');
         const deleteHuntBtn = document.getElementById('deleteHuntBtn');
         const adminIndicator = document.getElementById('adminIndicator');
+
+        // ----- Banco de dados de munições -----
+        const AMMO_DB = {
+            'arrow': [
+                { name: 'Arrow', damage: 30 },
+                { name: 'Sniper Arrow', damage: 50 },
+                { name: 'Prismatic Arrow', damage: 65 },
+                { name: 'Diamond Arrow', damage: 35 },
+                { name: 'Spectral Arrow', damage: 40 },
+                { name: 'Crystalline Arrow', damage: 55 },
+                { name: 'Drill Arrow', damage: 45 },
+                { name: 'Earth Arrow', damage: 40 },
+                { name: 'Flame Arrow', damage: 40 },
+                { name: 'Frost Arrow', damage: 40 },
+                { name: 'Energy Arrow', damage: 40 },
+                { name: 'Vexclaw Arrow', damage: 60 },
+                { name: 'Thorn Arrow', damage: 50 },
+                { name: 'Divine Arrow', damage: 70 }
+            ],
+            'bolt': [
+                { name: 'Bolt', damage: 40 },
+                { name: 'Power Bolt', damage: 58 },
+                { name: 'Prismatic Bolt', damage: 78 },
+                { name: 'Spectral Bolt', damage: 50 },
+                { name: 'Drill Bolt', damage: 60 },
+                { name: 'Earth Bolt', damage: 50 },
+                { name: 'Flame Bolt', damage: 50 },
+                { name: 'Frost Bolt', damage: 50 },
+                { name: 'Energy Bolt', damage: 50 },
+                { name: 'Vexclaw Bolt', damage: 72 },
+                { name: 'Thorn Bolt', damage: 60 },
+                { name: 'Divine Bolt', damage: 82 }
+            ]
+        };
+
+        // ----- Função para atualizar o seletor de munição com base na arma selecionada -----
+        window.updateAmmoSelect = function() {
+            const weapon = weaponSelect.value;
+            const weaponLower = weapon.toLowerCase();
+            ammoSelect.innerHTML = '<option value="0">Nenhuma</option>';
+            
+            let ammoType = null;
+            if (weaponLower.includes('bow') || weaponLower.includes('longbow') || weaponLower.includes('soulbleeder') || weaponLower.includes('thorn spitter')) {
+                ammoType = 'arrow';
+            } else if (weaponLower.includes('crossbow') || weaponLower.includes('chain bolter') || weaponLower.includes('soulshredder') || weaponLower.includes('soulmaimer') || weaponLower.includes('devileye')) {
+                ammoType = 'bolt';
+            } else {
+                return; // Não é arma de distância, não mostra munições
+            }
+            
+            const ammoList = AMMO_DB[ammoType];
+            ammoList.forEach(ammo => {
+                const option = document.createElement('option');
+                option.value = ammo.damage;
+                option.textContent = `${ammo.name} (dano médio: ${ammo.damage})`;
+                ammoSelect.appendChild(option);
+            });
+        };
 
         // ----- Formatação de números (duas casas decimais, ponto como separador de milhar) -----
         function formatNumber(value) {
@@ -418,13 +492,16 @@
             return MINOR_MULTIPLIERS[key]?.[lvl] || 0;
         }
 
-        // ----- Cálculo do ataque base considerando o tipo de skill -----
+        // ----- Cálculo do ataque base considerando skill e munição -----
         function calculateAttackBase() {
             const level = parseFloat(levelInput.value) || 107;
             const skillType = skillTypeSelect.value;
             const skillValue = parseFloat(skillValueInput.value) || 0;
             const bonusEquip = parseFloat(bonusEquipInput.value) || 0;
             const bonusOutros = parseFloat(bonusOutrosInput.value) || 0;
+            
+            // Dano da munição (se selecionada)
+            const ammoDamage = parseFloat(ammoSelect.value) || 0;
             
             const flatBonus = Math.round(level * 0.95);
             
@@ -445,7 +522,7 @@
                     skillContribution = skillValue;
             }
             
-            return flatBonus + skillContribution + bonusEquip + bonusOutros;
+            return flatBonus + skillContribution + bonusEquip + bonusOutros + ammoDamage;
         }
 
         // ----- Utilitários -----
@@ -551,7 +628,7 @@
             return 0;
         }
 
-        // ----- Cálculo do dano médio por ataque considerando crítico e fatal -----
+        // ----- Cálculo do dano médio por ataque considerando crítico, fatal e munição -----
         function calculateAverageDamageWithFatal() {
             const attackBase = calculateAttackBase();
             const autoExtra = parseFloat(autoExtraInput.value) || 9;
@@ -566,13 +643,7 @@
             // Dano base (sem crítico nem fatal)
             const normal = baseDamage;
             
-            // Cálculo considerando que crítico e fatal podem ocorrer simultaneamente [citation:1]
-            // Probabilidades:
-            // - Só normal: (1 - critChance) * (1 - fatalChance)
-            // - Só crítico: critChance * (1 - fatalChance)
-            // - Só fatal: (1 - critChance) * fatalChance
-            // - Crítico + fatal: critChance * fatalChance
-            
+            // Cálculo considerando que crítico e fatal podem ocorrer simultaneamente
             const danoNormal = normal;
             const danoCrit = normal * (1 + critExtra);
             const danoFatal = normal * (1 + FATAL_EXTRA_DAMAGE);
@@ -588,9 +659,10 @@
             
             const skillType = skillTypeSelect.options[skillTypeSelect.selectedIndex].text;
             const weaponName = weaponSelect.options[weaponSelect.selectedIndex].text;
+            const ammoName = ammoSelect.options[ammoSelect.selectedIndex]?.text.split(' ')[0] || 'Nenhuma';
             avgResult.innerHTML = `Dano médio/ataque: <strong>${formatNumber(avg)}</strong><br>` +
                                   `Life Leech (base): ${formatNumber(lifeLeech)} | Mana Leech (base): ${formatNumber(manaLeech)}<br>` +
-                                  `(Skill: ${skillType} ${skillValueInput.value} | Arma: ${weaponName} | Tier: ${tier} | Fatal: ${(fatalChance*100).toFixed(2)}% / +60%)`;
+                                  `(Skill: ${skillType} ${skillValueInput.value} | Arma: ${weaponName} | Munição: ${ammoName} | Tier: ${tier} | Fatal: ${(fatalChance*100).toFixed(2)}% / +60%)`;
             return { avg, lifeLeech, manaLeech, baseDamage };
         }
 
@@ -911,6 +983,7 @@
         loadFromStorage();
         renderHuntSelect();
         renderTable();
+        updateAmmoSelect(); // Inicializa o seletor de munição
         setTimeout(() => calculateAverageDamageWithFatal(), 100);
     })();
 </script>
