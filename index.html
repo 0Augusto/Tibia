@@ -17,6 +17,7 @@
         .param-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .param-item { display: flex; flex-direction: column; }
         .param-item-row { display: flex; flex-direction: row; align-items: center; gap: 10px; grid-column: span 2; }
+        .param-item-row3 { display: flex; flex-direction: row; align-items: center; gap: 10px; grid-column: span 3; }
         label { font-size: 0.9em; color: #aaa; margin-bottom: 3px; }
         input, select { background: #1e1e2f; border: 1px solid #3a3a4f; color: #fff; padding: 8px; border-radius: 5px; font-size: 1em; }
         input:focus, select:focus { outline: none; border-color: #f0b87b; }
@@ -38,49 +39,59 @@
 </head>
 <body>
 <div class="container">
-    <h1>⚔️ Calculadora de Dano - Tibia</h1>
+    <h1>⚔️ Calculadora de Dano - Tibia (Armas e Tiers 0-10)</h1>
     
     <!-- Seção de instruções (homepage) -->
     <div class="guide">
         <h2>📖 Como preencher os campos para resultados precisos</h2>
-        <p>Esta calculadora considera os atributos do seu personagem, o tipo de skill, os charms (Major e Minor) e a quantidade de monstros por hora para estimar o dano total e o sustain (life/mana leech). Siga as orientações abaixo:</p>
+        <p>Esta calculadora considera os atributos do seu personagem, o tipo de skill, a arma utilizada com seu respectivo tier (0 a 10), os charms (Major e Minor) e a quantidade de monstros por hora para estimar o dano total e o sustain (life/mana leech).</p>
         
         <h3>⚙️ Parâmetros do Personagem</h3>
         <ul>
             <li><strong>Nível do Personagem:</strong> Seu level atual. Influencia o dano base.</li>
-            <li><strong>Tipo de Skill:</strong> Escolha entre Distance, Magic Level, Fist Fighting, Axe, Club ou Sword. O cálculo do dano base se ajusta automaticamente.</li>
-            <li><strong>Valor do Skill:</strong> Seu valor de skill (ex: 163 para distance, 120 para magic level, etc.).</li>
+            <li><strong>Tipo de Skill:</strong> Escolha entre Distance, Magic Level, Fist Fighting, Axe, Club ou Sword.</li>
+            <li><strong>Valor do Skill:</strong> Seu valor de skill (ex: 163 para distance).</li>
+            <li><strong>Arma Utilizada:</strong> Selecione sua arma na lista. O nome é apenas para referência.</li>
+            <li><strong>Tier da Arma (0-10):</strong> Nível de refinamento da arma. Quanto maior o tier, maior a chance de ativar o efeito <strong>Fatal (Onslaught)</strong>, que adiciona 60% de dano extra [citation:2].</li>
             <li><strong>Bônus de Equipamento:</strong> Soma de todos os bônus de ataque de equipamentos (ex: 44).</li>
             <li><strong>Bônus Diversos:</strong> Outros bônus como Combat Tactics, imbuements que aumentam o ataque, etc. (ex: 38).</li>
             <li><strong>Dano Extra Auto (Shielding):</strong> Valor fixo adicionado ao ataque (ex: 9).</li>
             <li><strong>Chance Crítico (%):</strong> Percentual de chance de acerto crítico (ex: 10%).</li>
             <li><strong>Dano Crítico Extra (%):</strong> Percentual adicional de dano no crítico (ex: 57,5%).</li>
-            <li><strong>Life Leech Base (%):</strong> Soma de todas as fontes de life leech (imbuements, wheel of destiny). Ex: se você tem 50% de um imbuement e 0,75% da roda, coloque 50,75.</li>
+            <li><strong>Life Leech Base (%):</strong> Soma de todas as fontes de life leech (imbuements, wheel of destiny). Ex: 50% + 0,75% = 50,75.</li>
             <li><strong>Mana Leech Base (%):</strong> Soma de todas as fontes de mana leech (imbuements, wheel). Ex: 16% + 0,25% = 16,25.</li>
-            <li><strong>Ataques por minuto:</strong> Quantos ataques físicos você realiza por minuto (padrão: 30 para armas de distância, 25 para armas corpo a corpo, 20 para magia).</li>
+            <li><strong>Ataques por minuto:</strong> Quantos ataques físicos você realiza por minuto.</li>
         </ul>
+        
+        <h3>⚡ Efeito Fatal (Onslaught) por Tier</h3>
+        <ul>
+            <li><strong>Tier 0:</strong> 0% de chance</li>
+            <li><strong>Tier 1:</strong> 0,50% de chance</li>
+            <li><strong>Tier 2:</strong> 1,05% de chance</li>
+            <li><strong>Tier 3:</strong> 1,70% de chance</li>
+            <li><strong>Tier 4:</strong> 2,45% de chance</li>
+            <li><strong>Tier 5:</strong> 3,30% de chance</li>
+            <li><strong>Tier 6:</strong> 4,25% de chance</li>
+            <li><strong>Tier 7:</strong> 5,30% de chance</li>
+            <li><strong>Tier 8:</strong> 6,45% de chance</li>
+            <li><strong>Tier 9:</strong> 7,70% de chance</li>
+            <li><strong>Tier 10:</strong> 9,05% de chance</li>
+        </ul>
+        <p>O dano extra do Fatal é de <strong>60%</strong> e pode ocorrer simultaneamente com o crítico [citation:1]. O cálculo do dano médio considera ambos os efeitos.</p>
         
         <h3>👾 Monstros da Hunt</h3>
         <ul>
-            <li><strong>Nome:</strong> Identificação do monstro (apenas para referência).</li>
-            <li><strong>Qtd/h:</strong> Quantos monstros você mata por hora (estimativa).</li>
+            <li><strong>Nome:</strong> Identificação do monstro.</li>
+            <li><strong>Qtd/h:</strong> Quantos monstros por hora (estimativa).</li>
             <li><strong>Vida:</strong> Pontos de vida do monstro.</li>
-            <li><strong>Fraqueza:</strong> Multiplicador de dano elemental (ex: 1.2 para 120%, 1.0 para neutro).</li>
-            <li><strong>Major Charm:</strong> Escolha o charm que causa dano. A opção <strong>"Normal" não causa dano</strong> (multiplicador 0).</li>
-            <li><strong>Nível (Major):</strong> Nível do charm (1, 2 ou 3). As porcentagens são automáticas.</li>
-            <li><strong>Minor Charm (Leech):</strong> Escolha um charm de leech: <em>Vampiric Embrace</em> (aumenta life leech), <em>Void's Call</em> (aumenta mana leech), <em>Void Inversion</em> (sem efeito) ou <em>Nenhum</em>.</li>
-            <li><strong>Nível (Minor):</strong> Nível do minor charm. As porcentagens de bônus de leech são:
-                <ul>
-                    <li>Vampiric Embrace: 1,6% (lvl1), 2,4% (lvl2), 3,2% (lvl3)</li>
-                    <li>Void's Call: 0,8% (lvl1), 1,2% (lvl2), 1,6% (lvl3)</li>
-                    <li>Void Inversion: 0% (qualquer nível)</li>
-                </ul>
-            </li>
+            <li><strong>Fraqueza:</strong> Multiplicador de dano elemental (ex: 1.2 para 120%).</li>
+            <li><strong>Major Charm:</strong> Charm que causa dano. "Normal" = 0.</li>
+            <li><strong>Nível (Major):</strong> Nível do charm (1, 2 ou 3).</li>
+            <li><strong>Minor Charm (Leech):</strong> Charm de leech: Vampiric Embrace (aumenta life leech), Void's Call (aumenta mana leech), Void Inversion (sem efeito) ou Nenhum.</li>
+            <li><strong>Nível (Minor):</strong> Nível do minor charm. As porcentagens de bônus são automáticas.</li>
         </ul>
         
-        <p><strong>⚠️ Importante:</strong> Os valores de <code>Life Leech Base</code> e <code>Mana Leech Base</code> devem incluir <strong>todos</strong> os imbuements e bônus da Roda de Habilidades que você possui. Por exemplo, se você tem um imbuement de 50% life leech e a roda concede 0,75%, o total é 50,75%.</p>
-        <p>Os minor charms de leech <strong>não causam dano</strong>, apenas aumentam o respectivo leech sobre o dano causado ao monstro (Major + físico). O bônus é somado ao leech base no resultado final.</p>
-        <p>Para adicionar ou remover monstros, use os botões abaixo da tabela. Os dados são salvos automaticamente no seu navegador.</p>
+        <p><strong>⚠️ Importante:</strong> Os valores de <code>Life Leech Base</code> e <code>Mana Leech Base</code> devem incluir <strong>todos</strong> os imbuements e bônus da Roda de Habilidades. O dano do Fatal é calculado automaticamente com base no tier da arma e incluído no dano físico total.</p>
         <p style="color:#f0b87b;">🔒 A exclusão de hunts é restrita ao administrador.</p>
     </div>
 
@@ -94,7 +105,7 @@
         <span class="admin-note" id="adminIndicator"></span>
     </div>
 
-    <!-- Parâmetros do personagem com Level e Skill -->
+    <!-- Parâmetros do personagem com Level, Skill, Arma e Tier -->
     <div class="param-grid">
         <div class="param-item">
             <label>Nível do Personagem</label>
@@ -115,6 +126,87 @@
             <div style="flex:1;">
                 <label>Valor do Skill</label>
                 <input type="number" id="skillValue" value="163" step="1" min="0">
+            </div>
+        </div>
+        <div class="param-item-row3">
+            <div style="flex:2;">
+                <label>Arma Utilizada</label>
+                <select id="weaponSelect">
+                    <option value="None">Nenhuma / Padrão</option>
+                    <option value="Bow of Destruction">Bow of Destruction</option>
+                    <option value="Crossbow of Destruction">Crossbow of Destruction</option>
+                    <option value="Living Vine Bow">Living Vine Bow</option>
+                    <option value="Bow of Cataclysm">Bow of Cataclysm</option>
+                    <option value="Eldritch Bow">Eldritch Bow</option>
+                    <option value="Gilded Eldritch Bow">Gilded Eldritch Bow</option>
+                    <option value="Thorn Spitter">Thorn Spitter</option>
+                    <option value="Cobra Crossbow">Cobra Crossbow</option>
+                    <option value="Lion Longbow">Lion Longbow</option>
+                    <option value="Falcon Bow">Falcon Bow</option>
+                    <option value="Amber Bow">Amber Bow</option>
+                    <option value="Amber Crossbow">Amber Crossbow</option>
+                    <option value="Inferniarch Bow">Inferniarch Bow</option>
+                    <option value="Rending Inferniarch Bow">Rending Inferniarch Bow</option>
+                    <option value="Draining Inferniarch Bow">Draining Inferniarch Bow</option>
+                    <option value="Siphoning Inferniarch Bow">Siphoning Inferniarch Bow</option>
+                    <option value="The Devileye">The Devileye</option>
+                    <option value="Chain Bolter">Chain Bolter</option>
+                    <option value="Soulbleeder">Soulbleeder</option>
+                    <option value="Soulshredder">Soulshredder</option>
+                    <option value="Soulmaimer">Soulmaimer</option>
+                    <option value="Gnome Sword">Gnome Sword</option>
+                    <option value="Gnome Axe">Gnome Axe</option>
+                    <option value="Gnome Club">Gnome Club</option>
+                    <option value="Resizer">Resizer</option>
+                    <option value="Tagralt Blade">Tagralt Blade</option>
+                    <option value="Eldritch Great Axe">Eldritch Great Axe</option>
+                    <option value="Eldritch Hammer">Eldritch Hammer</option>
+                    <option value="Eldritch Claymore">Eldritch Claymore</option>
+                    <option value="Cobra Club">Cobra Club</option>
+                    <option value="Cobra Axe">Cobra Axe</option>
+                    <option value="Cobra Sword">Cobra Sword</option>
+                    <option value="Falcon Longsword">Falcon Longsword</option>
+                    <option value="Falcon Mace">Falcon Mace</option>
+                    <option value="Falcon Battleaxe">Falcon Battleaxe</option>
+                    <option value="Lion Axe">Lion Axe</option>
+                    <option value="Lion Hammer">Lion Hammer</option>
+                    <option value="Lion Longsword">Lion Longsword</option>
+                    <option value="Umbrella">Umbrella</option>
+                    <option value="Winterblade">Winterblade</option>
+                    <option value="Summerblade">Summerblade</option>
+                    <option value="Springsprout">Springsprout</option>
+                    <option value="Wand of Defiance">Wand of Defiance</option>
+                    <option value="Wand of Destruction">Wand of Destruction</option>
+                    <option value="Rod of Destruction">Rod of Destruction</option>
+                    <option value="Falcon Wand">Falcon Wand</option>
+                    <option value="Falcon Rod">Falcon Rod</option>
+                    <option value="Lion Wand">Lion Wand</option>
+                    <option value="Lion Rod">Lion Rod</option>
+                    <option value="Eldritch Wand">Eldritch Wand</option>
+                    <option value="Eldritch Rod">Eldritch Rod</option>
+                    <option value="Cobra Rod">Cobra Rod</option>
+                    <option value="Cobra Wand">Cobra Wand</option>
+                    <option value="Soultainter">Soultainter</option>
+                    <option value="Soulhexer">Soulhexer</option>
+                    <option value="Dream Blossom">Dream Blossom</option>
+                    <option value="Rotten Blossom">Rotten Blossom</option>
+                </select>
+            </div>
+            <div style="flex:1;">
+                <label>Tier (0-10)</label>
+                <select id="weaponTier">
+                    <option value="0">Tier 0 (0%)</option>
+                    <option value="1">Tier 1 (0,50%)</option>
+                    <option value="2">Tier 2 (1,05%)</option>
+                    <option value="3">Tier 3 (1,70%)</option>
+                    <option value="4">Tier 4 (2,45%)</option>
+                    <option value="5">Tier 5 (3,30%)</option>
+                    <option value="6">Tier 6 (4,25%)</option>
+                    <option value="7">Tier 7 (5,30%)</option>
+                    <option value="8">Tier 8 (6,45%)</option>
+                    <option value="9">Tier 9 (7,70%)</option>
+                    <option value="10">Tier 10 (9,05%)</option>
+                </select>
             </div>
         </div>
         <div class="param-item">
@@ -186,14 +278,14 @@
         </tbody>
     </table>
 
-    <!-- Resultado total com sustain -->
+    <!-- Resultado total com sustain e informações do Fatal -->
     <div class="total-footer" id="totalResult">
         Dano Físico/h: 0 | Dano Major/h: 0 | Dano Minor/h: 0 | Dano Total/h: 0<br>
         Life Leech/h: 0 (base) + 0 (charms) = 0 | Mana Leech/h: 0 (base) + 0 (charms) = 0
     </div>
 
     <!-- Créditos -->
-    <div class="credits">Criado por Cedine Rush · Versão Corrigida (Atualização por Índices)</div>
+    <div class="credits">Criado por Cedine Rush · Versão com Armas e Tiers (0-10)</div>
 </div>
 
 <script>
@@ -202,6 +294,8 @@
         const levelInput = document.getElementById('level');
         const skillTypeSelect = document.getElementById('skillType');
         const skillValueInput = document.getElementById('skillValue');
+        const weaponSelect = document.getElementById('weaponSelect');
+        const weaponTier = document.getElementById('weaponTier');
         const bonusEquipInput = document.getElementById('bonusEquip');
         const bonusOutrosInput = document.getElementById('bonusOutros');
         const autoExtraInput = document.getElementById('autoExtra');
@@ -270,13 +364,29 @@
             'frost': { 1: 0.05, 2: 0.06, 3: 0.07 }
         };
 
-        // ----- Multiplicadores dos Minor Charms (incluindo "Nenhum") -----
+        // ----- Multiplicadores dos Minor Charms -----
         const MINOR_MULTIPLIERS = {
             'nenhum': { 1: 0, 2: 0, 3: 0 },
             'vampiric embrace': { 1: 0.016, 2: 0.024, 3: 0.032 },
             'void\'s call': { 1: 0.008, 2: 0.012, 3: 0.016 },
             'void inversion': { 1: 0, 2: 0, 3: 0 }
         };
+
+        // ----- Tabela de chances do Fatal (Onslaught) por tier -----
+        const FATAL_CHANCE = {
+            0: 0,
+            1: 0.005,
+            2: 0.0105,
+            3: 0.017,
+            4: 0.0245,
+            5: 0.033,
+            6: 0.0425,
+            7: 0.053,
+            8: 0.0645,
+            9: 0.077,
+            10: 0.0905
+        };
+        const FATAL_EXTRA_DAMAGE = 0.6; // 60%
 
         // ----- Listas para os selects -----
         const MAJOR_OPTIONS = [
@@ -441,31 +551,54 @@
             return 0;
         }
 
-        // ----- Dano médio por ataque -----
-        function calcAverageDamage() {
+        // ----- Cálculo do dano médio por ataque considerando crítico e fatal -----
+        function calculateAverageDamageWithFatal() {
             const attackBase = calculateAttackBase();
             const autoExtra = parseFloat(autoExtraInput.value) || 9;
             const baseDamage = attackBase + autoExtra;
+            
+            // Chances e multiplicadores
             const critChance = parseFloat(critChanceInput.value) / 100;
             const critExtra = parseFloat(critDamageInput.value) / 100;
+            const tier = parseInt(weaponTier.value) || 0;
+            const fatalChance = FATAL_CHANCE[tier] || 0;
+            
+            // Dano base (sem crítico nem fatal)
             const normal = baseDamage;
-            const crit = baseDamage * (1 + critExtra);
-            const avg = (1 - critChance) * normal + critChance * crit;
+            
+            // Cálculo considerando que crítico e fatal podem ocorrer simultaneamente [citation:1]
+            // Probabilidades:
+            // - Só normal: (1 - critChance) * (1 - fatalChance)
+            // - Só crítico: critChance * (1 - fatalChance)
+            // - Só fatal: (1 - critChance) * fatalChance
+            // - Crítico + fatal: critChance * fatalChance
+            
+            const danoNormal = normal;
+            const danoCrit = normal * (1 + critExtra);
+            const danoFatal = normal * (1 + FATAL_EXTRA_DAMAGE);
+            const danoCritFatal = normal * (1 + critExtra + FATAL_EXTRA_DAMAGE);
+            
+            const avg = (1 - critChance) * (1 - fatalChance) * danoNormal +
+                        critChance * (1 - fatalChance) * danoCrit +
+                        (1 - critChance) * fatalChance * danoFatal +
+                        critChance * fatalChance * danoCritFatal;
+            
             const lifeLeech = avg * (parseFloat(lifeLeechInput.value) / 100);
             const manaLeech = avg * (parseFloat(manaLeechInput.value) / 100);
             
             const skillType = skillTypeSelect.options[skillTypeSelect.selectedIndex].text;
+            const weaponName = weaponSelect.options[weaponSelect.selectedIndex].text;
             avgResult.innerHTML = `Dano médio/ataque: <strong>${formatNumber(avg)}</strong><br>` +
                                   `Life Leech (base): ${formatNumber(lifeLeech)} | Mana Leech (base): ${formatNumber(manaLeech)}<br>` +
-                                  `(Skill: ${skillType} ${skillValueInput.value} → contribuição ${attackBase - Math.round(parseFloat(levelInput.value) * 0.95) - bonusEquipInput.valueAsNumber - bonusOutrosInput.valueAsNumber})`;
+                                  `(Skill: ${skillType} ${skillValueInput.value} | Arma: ${weaponName} | Tier: ${tier} | Fatal: ${(fatalChance*100).toFixed(2)}% / +60%)`;
             return { avg, lifeLeech, manaLeech, baseDamage };
         }
 
-        calcAvgBtn.addEventListener('click', calcAverageDamage);
+        calcAvgBtn.addEventListener('click', calculateAverageDamageWithFatal);
 
-        // ----- Calcular totais por hora e sustain com charms -----
+        // ----- Calcular totais por hora e sustain com charms e fatal -----
         calcTotalBtn.addEventListener('click', () => {
-            const avgData = calcAverageDamage();
+            const avgData = calculateAverageDamageWithFatal();
             const attacksPerHour = parseFloat(attacksPerMinInput.value) * 60;
             const physDamage = avgData.avg * attacksPerHour;
 
@@ -500,10 +633,14 @@
             const lifeLeechTotal = lifeLeechBase + lifeLeechBonusTotal;
             const manaLeechTotal = manaLeechBase + manaLeechBonusTotal;
 
+            const tier = parseInt(weaponTier.value) || 0;
+            const fatalChance = FATAL_CHANCE[tier] || 0;
+
             totalResult.innerHTML = `Dano Físico/h: <strong>${formatNumber(physDamage)}</strong> | ` +
                                     `Dano Major/h: <strong>${formatNumber(majorTotal)}</strong> | ` +
                                     `Dano Minor/h: <strong>0,00</strong> | ` +
                                     `Dano Total/h: <strong>${formatNumber(totalDamage)}</strong><br>` +
+                                    `Fatal: ${(fatalChance*100).toFixed(2)}% de chance para +60% de dano (já incluso no dano físico)<br>` +
                                     `Life Leech/h: ${formatNumber(lifeLeechBase)} (base) + ${formatNumber(lifeLeechBonusTotal)} (charms) = <strong>${formatNumber(lifeLeechTotal)}</strong><br>` +
                                     `Mana Leech/h: ${formatNumber(manaLeechBase)} (base) + ${formatNumber(manaLeechBonusTotal)} (charms) = <strong>${formatNumber(manaLeechTotal)}</strong>`;
         });
@@ -660,7 +797,6 @@
                 const cellTotal = row.cells[10];
                 if (cellDmgMajor) cellDmgMajor.textContent = formatNumber(majorDmg);
                 if (cellTotal) cellTotal.textContent = formatNumber(totalPerMob);
-                // Dano Minor permanece 0, não precisa atualizar
             });
         }
 
@@ -682,7 +818,7 @@
             if (monsters[index]) {
                 monsters[index][field] = value;
                 setCurrentMonsters(monsters);
-                updateDamageDisplays(); // Atualiza a tabela imediatamente
+                updateDamageDisplays();
             }
         }
 
@@ -775,7 +911,7 @@
         loadFromStorage();
         renderHuntSelect();
         renderTable();
-        setTimeout(() => calcAverageDamage(), 100);
+        setTimeout(() => calculateAverageDamageWithFatal(), 100);
     })();
 </script>
 </body>
