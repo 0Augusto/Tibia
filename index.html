@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Dano - Tibia</title>
+    <title>Calculadora de Dano</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: #1e1e2f; color: #ddd; max-width: 1400px; margin: 20px auto; padding: 0 20px; }
@@ -40,7 +40,7 @@
 </head>
 <body>
 <div class="container">
-    <h1>⚔️ Calculadora de Dano - Tibia</h1>
+    <h1>⚔️ Calculadora de Dano</h1>
     
     <!-- Seção de instruções (homepage) -->
     <div class="guide">
@@ -81,12 +81,11 @@
         </ul>
         <p>O dano extra do Fatal é de <strong>60%</strong> e pode ocorrer simultaneamente com o crítico. O cálculo do dano médio considera ambos os efeitos.</p>
         
-        <h3>🏹 Munições Disponíveis</h3>
+        <h3>🏹 Munições Disponíveis (em ordem alfabética)</h3>
         <ul>
-            <li><strong>Arrows (para bows):</strong> Arrow (30), Sniper Arrow (50), Prismatic Arrow (65), Diamond Arrow (35), Spectral Arrow (40), Crystalline Arrow (55), Drill Arrow (45), Earth Arrow (40), Flame Arrow (40), Frost Arrow (40), Energy Arrow (40), Vexclaw Arrow (60), Thorn Arrow (50), Divine Arrow (70)</li>
-            <li><strong>Bolts (para crossbows):</strong> Bolt (40), Power Bolt (58), Prismatic Bolt (78), Spectral Bolt (50), Drill Bolt (60), Earth Bolt (50), Flame Bolt (50), Frost Bolt (50), Energy Bolt (50), Vexclaw Bolt (72), Thorn Bolt (60), Divine Bolt (82)</li>
+            <li><strong>Arrows:</strong> Arrow, Crystalline Arrow, Diamond Arrow, Divine Arrow, Drill Arrow, Earth Arrow, Energy Arrow, Flame Arrow, Frost Arrow, Prismatic Arrow, Sniper Arrow, Spectral Arrow, Thorn Arrow, Vexclaw Arrow</li>
+            <li><strong>Bolts:</strong> Bolt, Divine Bolt, Drill Bolt, Earth Bolt, Energy Bolt, Flame Bolt, Frost Bolt, Power Bolt, Prismatic Bolt, Spectral Bolt, Thorn Bolt, Vexclaw Bolt</li>
         </ul>
-        <p>Os valores entre parênteses são os danos médios adicionados ao ataque base.</p>
         
         <h3>👾 Monstros da Hunt</h3>
         <ul>
@@ -94,9 +93,9 @@
             <li><strong>Qtd/h:</strong> Quantos monstros por hora (estimativa).</li>
             <li><strong>Vida:</strong> Pontos de vida do monstro.</li>
             <li><strong>Fraqueza:</strong> Multiplicador de dano elemental (ex: 1.2 para 120%).</li>
-            <li><strong>Major Charm:</strong> Charm que causa dano. "Normal" = 0.</li>
+            <li><strong>Major Charm (em ordem alfabética):</strong> Adrenaline Burst, Curse, Divine Wrath, Dodge, Enflame, Freeze, Frost, Gut, Low Blow, Momentum, Normal, Parry, Poison, Savage Blow, Scorch, Vampirism, Venom, Wound, Zap</li>
             <li><strong>Nível (Major):</strong> Nível do charm (1, 2 ou 3).</li>
-            <li><strong>Minor Charm (Leech):</strong> Charm de leech: Vampiric Embrace (aumenta life leech), Void's Call (aumenta mana leech), Void Inversion (sem efeito) ou Nenhum.</li>
+            <li><strong>Minor Charm (Leech):</strong> Nenhum, Vampiric Embrace, Void Inversion, Void's Call</li>
             <li><strong>Nível (Minor):</strong> Nível do minor charm. As porcentagens de bônus são automáticas.</li>
         </ul>
         
@@ -139,70 +138,70 @@
         </div>
         <div class="param-item-row4">
             <div style="flex:2;">
-                <label>Arma Utilizada</label>
+                <label>Arma Utilizada (em ordem alfabética)</label>
                 <select id="weaponSelect" onchange="updateAmmoSelect()">
                     <option value="None">Nenhuma / Padrão</option>
-                    <option value="Bow of Destruction">Bow of Destruction</option>
-                    <option value="Crossbow of Destruction">Crossbow of Destruction</option>
-                    <option value="Living Vine Bow">Living Vine Bow</option>
-                    <option value="Bow of Cataclysm">Bow of Cataclysm</option>
-                    <option value="Eldritch Bow">Eldritch Bow</option>
-                    <option value="Gilded Eldritch Bow">Gilded Eldritch Bow</option>
-                    <option value="Thorn Spitter">Thorn Spitter</option>
-                    <option value="Cobra Crossbow">Cobra Crossbow</option>
-                    <option value="Lion Longbow">Lion Longbow</option>
-                    <option value="Falcon Bow">Falcon Bow</option>
                     <option value="Amber Bow">Amber Bow</option>
                     <option value="Amber Crossbow">Amber Crossbow</option>
-                    <option value="Inferniarch Bow">Inferniarch Bow</option>
-                    <option value="Rending Inferniarch Bow">Rending Inferniarch Bow</option>
-                    <option value="Draining Inferniarch Bow">Draining Inferniarch Bow</option>
-                    <option value="Siphoning Inferniarch Bow">Siphoning Inferniarch Bow</option>
-                    <option value="The Devileye">The Devileye</option>
+                    <option value="Bow of Cataclysm">Bow of Cataclysm</option>
+                    <option value="Bow of Destruction">Bow of Destruction</option>
                     <option value="Chain Bolter">Chain Bolter</option>
-                    <option value="Soulbleeder">Soulbleeder</option>
-                    <option value="Soulshredder">Soulshredder</option>
-                    <option value="Soulmaimer">Soulmaimer</option>
-                    <option value="Gnome Sword">Gnome Sword</option>
-                    <option value="Gnome Axe">Gnome Axe</option>
-                    <option value="Gnome Club">Gnome Club</option>
-                    <option value="Resizer">Resizer</option>
-                    <option value="Tagralt Blade">Tagralt Blade</option>
+                    <option value="Cobra Axe">Cobra Axe</option>
+                    <option value="Cobra Club">Cobra Club</option>
+                    <option value="Cobra Crossbow">Cobra Crossbow</option>
+                    <option value="Cobra Rod">Cobra Rod</option>
+                    <option value="Cobra Sword">Cobra Sword</option>
+                    <option value="Cobra Wand">Cobra Wand</option>
+                    <option value="Crossbow of Destruction">Crossbow of Destruction</option>
+                    <option value="Draining Inferniarch Bow">Draining Inferniarch Bow</option>
+                    <option value="Dream Blossom">Dream Blossom</option>
+                    <option value="Eldritch Bow">Eldritch Bow</option>
+                    <option value="Eldritch Claymore">Eldritch Claymore</option>
                     <option value="Eldritch Great Axe">Eldritch Great Axe</option>
                     <option value="Eldritch Hammer">Eldritch Hammer</option>
-                    <option value="Eldritch Claymore">Eldritch Claymore</option>
-                    <option value="Cobra Club">Cobra Club</option>
-                    <option value="Cobra Axe">Cobra Axe</option>
-                    <option value="Cobra Sword">Cobra Sword</option>
+                    <option value="Eldritch Rod">Eldritch Rod</option>
+                    <option value="Eldritch Wand">Eldritch Wand</option>
+                    <option value="Falcon Battleaxe">Falcon Battleaxe</option>
+                    <option value="Falcon Bow">Falcon Bow</option>
                     <option value="Falcon Longsword">Falcon Longsword</option>
                     <option value="Falcon Mace">Falcon Mace</option>
-                    <option value="Falcon Battleaxe">Falcon Battleaxe</option>
+                    <option value="Falcon Rod">Falcon Rod</option>
+                    <option value="Falcon Wand">Falcon Wand</option>
+                    <option value="Gilded Eldritch Bow">Gilded Eldritch Bow</option>
+                    <option value="Gnome Axe">Gnome Axe</option>
+                    <option value="Gnome Club">Gnome Club</option>
+                    <option value="Gnome Sword">Gnome Sword</option>
+                    <option value="Inferniarch Bow">Inferniarch Bow</option>
                     <option value="Lion Axe">Lion Axe</option>
                     <option value="Lion Hammer">Lion Hammer</option>
+                    <option value="Lion Longbow">Lion Longbow</option>
                     <option value="Lion Longsword">Lion Longsword</option>
-                    <option value="Umbrella">Umbrella</option>
-                    <option value="Winterblade">Winterblade</option>
-                    <option value="Summerblade">Summerblade</option>
+                    <option value="Lion Rod">Lion Rod</option>
+                    <option value="Lion Wand">Lion Wand</option>
+                    <option value="Living Vine Bow">Living Vine Bow</option>
+                    <option value="Rending Inferniarch Bow">Rending Inferniarch Bow</option>
+                    <option value="Resizer">Resizer</option>
+                    <option value="Rod of Destruction">Rod of Destruction</option>
+                    <option value="Rotten Blossom">Rotten Blossom</option>
+                    <option value="Siphoning Inferniarch Bow">Siphoning Inferniarch Bow</option>
+                    <option value="Soulbleeder">Soulbleeder</option>
+                    <option value="Soulhexer">Soulhexer</option>
+                    <option value="Soulmaimer">Soulmaimer</option>
+                    <option value="Soulshredder">Soulshredder</option>
+                    <option value="Soultainter">Soultainter</option>
                     <option value="Springsprout">Springsprout</option>
+                    <option value="Summerblade">Summerblade</option>
+                    <option value="Tagralt Blade">Tagralt Blade</option>
+                    <option value="The Devileye">The Devileye</option>
+                    <option value="Thorn Spitter">Thorn Spitter</option>
+                    <option value="Umbrella">Umbrella</option>
                     <option value="Wand of Defiance">Wand of Defiance</option>
                     <option value="Wand of Destruction">Wand of Destruction</option>
-                    <option value="Rod of Destruction">Rod of Destruction</option>
-                    <option value="Falcon Wand">Falcon Wand</option>
-                    <option value="Falcon Rod">Falcon Rod</option>
-                    <option value="Lion Wand">Lion Wand</option>
-                    <option value="Lion Rod">Lion Rod</option>
-                    <option value="Eldritch Wand">Eldritch Wand</option>
-                    <option value="Eldritch Rod">Eldritch Rod</option>
-                    <option value="Cobra Rod">Cobra Rod</option>
-                    <option value="Cobra Wand">Cobra Wand</option>
-                    <option value="Soultainter">Soultainter</option>
-                    <option value="Soulhexer">Soulhexer</option>
-                    <option value="Dream Blossom">Dream Blossom</option>
-                    <option value="Rotten Blossom">Rotten Blossom</option>
+                    <option value="Winterblade">Winterblade</option>
                 </select>
             </div>
             <div style="flex:1.5;">
-                <label>Munição</label>
+                <label>Munição (em ordem alfabética)</label>
                 <select id="ammoSelect">
                     <option value="0">Nenhuma</option>
                 </select>
@@ -279,9 +278,9 @@
                 <th>Qtd/h</th>
                 <th>Vida</th>
                 <th>Fraqueza</th>
-                <th>Major Charm</th>
+                <th>Major Charm (alfabética)</th>
                 <th>Nível</th>
-                <th>Minor Charm (Leech)</th>
+                <th>Minor Charm (alfabética)</th>
                 <th>Nível</th>
                 <th>Dano Major</th>
                 <th>Dano Minor</th>
@@ -300,7 +299,7 @@
     </div>
 
     <!-- Créditos -->
-    <div class="credits">Criado por Cedine Rush · Versão com Armas, Tiers e Munições</div>
+    <div class="credits">Criado por Cedine Rush · Versão com Listas Ordenadas</div>
 </div>
 
 <script>
@@ -333,37 +332,37 @@
         const deleteHuntBtn = document.getElementById('deleteHuntBtn');
         const adminIndicator = document.getElementById('adminIndicator');
 
-        // ----- Banco de dados de munições -----
+        // ----- Banco de dados de munições (ordenado alfabeticamente) -----
         const AMMO_DB = {
             'arrow': [
                 { name: 'Arrow', damage: 30 },
-                { name: 'Sniper Arrow', damage: 50 },
-                { name: 'Prismatic Arrow', damage: 65 },
-                { name: 'Diamond Arrow', damage: 35 },
-                { name: 'Spectral Arrow', damage: 40 },
                 { name: 'Crystalline Arrow', damage: 55 },
+                { name: 'Diamond Arrow', damage: 35 },
+                { name: 'Divine Arrow', damage: 70 },
                 { name: 'Drill Arrow', damage: 45 },
                 { name: 'Earth Arrow', damage: 40 },
+                { name: 'Energy Arrow', damage: 40 },
                 { name: 'Flame Arrow', damage: 40 },
                 { name: 'Frost Arrow', damage: 40 },
-                { name: 'Energy Arrow', damage: 40 },
-                { name: 'Vexclaw Arrow', damage: 60 },
+                { name: 'Prismatic Arrow', damage: 65 },
+                { name: 'Sniper Arrow', damage: 50 },
+                { name: 'Spectral Arrow', damage: 40 },
                 { name: 'Thorn Arrow', damage: 50 },
-                { name: 'Divine Arrow', damage: 70 }
+                { name: 'Vexclaw Arrow', damage: 60 }
             ],
             'bolt': [
                 { name: 'Bolt', damage: 40 },
+                { name: 'Divine Bolt', damage: 82 },
+                { name: 'Drill Bolt', damage: 60 },
+                { name: 'Earth Bolt', damage: 50 },
+                { name: 'Energy Bolt', damage: 50 },
+                { name: 'Flame Bolt', damage: 50 },
+                { name: 'Frost Bolt', damage: 50 },
                 { name: 'Power Bolt', damage: 58 },
                 { name: 'Prismatic Bolt', damage: 78 },
                 { name: 'Spectral Bolt', damage: 50 },
-                { name: 'Drill Bolt', damage: 60 },
-                { name: 'Earth Bolt', damage: 50 },
-                { name: 'Flame Bolt', damage: 50 },
-                { name: 'Frost Bolt', damage: 50 },
-                { name: 'Energy Bolt', damage: 50 },
-                { name: 'Vexclaw Bolt', damage: 72 },
                 { name: 'Thorn Bolt', damage: 60 },
-                { name: 'Divine Bolt', damage: 82 }
+                { name: 'Vexclaw Bolt', damage: 72 }
             ]
         };
 
@@ -417,33 +416,33 @@
 
         // ----- Multiplicadores de Major Charms (causam dano) -----
         const MAJOR_MULTIPLIERS = {
-            'normal': { 1: 0, 2: 0, 3: 0 },
-            'low blow': { 1: 0.08, 2: 0.08, 3: 0.08 },
-            'savage blow': { 1: 0.4, 2: 0.4, 3: 0.4 },
-            'divine wrath': { 1: 0.05, 2: 0.06, 3: 0.07 },
-            'zap': { 1: 0.05, 2: 0.06, 3: 0.07 },
-            'freeze': { 1: 0.05, 2: 0.06, 3: 0.07 },
-            'curse': { 1: 0.05, 2: 0.06, 3: 0.07 },
-            'enflame': { 1: 0.05, 2: 0.06, 3: 0.07 },
-            'poison': { 1: 0.05, 2: 0.06, 3: 0.07 },
-            'wound': { 1: 0.05, 2: 0.06, 3: 0.07 },
-            'dodge': { 1: 0, 2: 0, 3: 0 },
-            'parry': { 1: 0.25, 2: 0.25, 3: 0.25 },
-            'gut': { 1: 0.10, 2: 0.12, 3: 0.14 },
             'adrenaline burst': { 1: 0, 2: 0, 3: 0 },
+            'curse': { 1: 0.05, 2: 0.06, 3: 0.07 },
+            'divine wrath': { 1: 0.05, 2: 0.06, 3: 0.07 },
+            'dodge': { 1: 0, 2: 0, 3: 0 },
+            'enflame': { 1: 0.05, 2: 0.06, 3: 0.07 },
+            'freeze': { 1: 0.05, 2: 0.06, 3: 0.07 },
+            'frost': { 1: 0.05, 2: 0.06, 3: 0.07 },
+            'gut': { 1: 0.10, 2: 0.12, 3: 0.14 },
+            'low blow': { 1: 0.08, 2: 0.08, 3: 0.08 },
             'momentum': { 1: 0, 2: 0, 3: 0 },
+            'normal': { 1: 0, 2: 0, 3: 0 },
+            'parry': { 1: 0.25, 2: 0.25, 3: 0.25 },
+            'poison': { 1: 0.05, 2: 0.06, 3: 0.07 },
+            'savage blow': { 1: 0.4, 2: 0.4, 3: 0.4 },
+            'scorch': { 1: 0.05, 2: 0.06, 3: 0.07 },
             'vampirism': { 1: 0, 2: 0, 3: 0 },
             'venom': { 1: 0.05, 2: 0.06, 3: 0.07 },
-            'scorch': { 1: 0.05, 2: 0.06, 3: 0.07 },
-            'frost': { 1: 0.05, 2: 0.06, 3: 0.07 }
+            'wound': { 1: 0.05, 2: 0.06, 3: 0.07 },
+            'zap': { 1: 0.05, 2: 0.06, 3: 0.07 }
         };
 
         // ----- Multiplicadores dos Minor Charms -----
         const MINOR_MULTIPLIERS = {
             'nenhum': { 1: 0, 2: 0, 3: 0 },
             'vampiric embrace': { 1: 0.016, 2: 0.024, 3: 0.032 },
-            'void\'s call': { 1: 0.008, 2: 0.012, 3: 0.016 },
-            'void inversion': { 1: 0, 2: 0, 3: 0 }
+            'void inversion': { 1: 0, 2: 0, 3: 0 },
+            'void\'s call': { 1: 0.008, 2: 0.012, 3: 0.016 }
         };
 
         // ----- Tabela de chances do Fatal (Onslaught) por tier -----
@@ -462,21 +461,34 @@
         };
         const FATAL_EXTRA_DAMAGE = 0.6; // 60%
 
-        // ----- Listas para os selects -----
+        // ----- Listas para os selects (ordenadas alfabeticamente) -----
         const MAJOR_OPTIONS = [
-            'Normal', 'Low Blow', 'Savage Blow',
-            'Divine Wrath', 'Zap', 'Freeze',
-            'Curse', 'Enflame', 'Poison', 'Wound',
-            'Dodge', 'Parry', 'Gut',
-            'Adrenaline Burst', 'Momentum', 'Vampirism',
-            'Venom', 'Scorch', 'Frost'
+            'Adrenaline Burst',
+            'Curse',
+            'Divine Wrath',
+            'Dodge',
+            'Enflame',
+            'Freeze',
+            'Frost',
+            'Gut',
+            'Low Blow',
+            'Momentum',
+            'Normal',
+            'Parry',
+            'Poison',
+            'Savage Blow',
+            'Scorch',
+            'Vampirism',
+            'Venom',
+            'Wound',
+            'Zap'
         ];
 
         const MINOR_OPTIONS = [
             'Nenhum',
             'Vampiric Embrace',
-            'Void\'s Call',
-            'Void Inversion'
+            'Void Inversion',
+            'Void\'s Call'
         ];
 
         // ----- Funções para obter multiplicadores -----
