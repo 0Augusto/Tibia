@@ -84,7 +84,7 @@
         <h3>🏹 Munições Disponíveis (em ordem alfabética)</h3>
         <ul>
             <li><strong>Arrows:</strong> Arrow, Crystalline Arrow, Diamond Arrow, Divine Arrow, Drill Arrow, Earth Arrow, Energy Arrow, Flame Arrow, Frost Arrow, Prismatic Arrow, Sniper Arrow, Spectral Arrow, Thorn Arrow, Vexclaw Arrow</li>
-            <li><strong>Bolts:</strong> Bolt, Divine Bolt, Drill Bolt, Earth Bolt, Energy Bolt, Flame Bolt, Frost Bolt, Power Bolt, Prismatic Bolt, Spectral Bolt, Thorn Bolt, Vexclaw Bolt</li>
+            <li><strong>Bolts:</strong> Assassin Bolt, Berserk Bolt, Bolt, Divine Bolt, Drill Bolt, Earth Bolt, Energy Bolt, Envenomed Bolt, Explosive Bolt, Flame Bolt, Flash Bolt, Frost Bolt, Glowing Bolt, Heavy Bolt, Hunting Bolt, Infernium Bolt, Iron Bolt, Jungle Bolt, Magma Bolt, Marsh Bolt, Metal Bolt, Mystic Bolt, Piercing Bolt, Poison Bolt, Power Bolt, Prismatic Bolt, Quicksand Bolt, Rending Bolt, Rusty Bolt, Searing Bolt, Shiver Bolt, Spectral Bolt, Tainted Bolt, Tarsal Bolt, Thorn Bolt, Vexclaw Bolt, Viper Bolt, War Bolt, Withering Bolt</li>
         </ul>
         
         <h3>👾 Monstros da Hunt</h3>
@@ -143,6 +143,10 @@
                     <option value="None">Nenhuma / Padrão</option>
                     <option value="Amber Bow">Amber Bow</option>
                     <option value="Amber Crossbow">Amber Crossbow</option>
+                    <option value="Arbalest">Arbalest</option>
+                    <option value="Assassin Crossbow">Assassin Crossbow</option>
+                    <option value="Atletica Crossbow">Atletica Crossbow</option>
+                    <option value="Bellum Crossbow">Bellum Crossbow</option>
                     <option value="Bow of Cataclysm">Bow of Cataclysm</option>
                     <option value="Bow of Destruction">Bow of Destruction</option>
                     <option value="Chain Bolter">Chain Bolter</option>
@@ -153,8 +157,11 @@
                     <option value="Cobra Sword">Cobra Sword</option>
                     <option value="Cobra Wand">Cobra Wand</option>
                     <option value="Crossbow of Destruction">Crossbow of Destruction</option>
+                    <option value="Crossbow of Mayhem">Crossbow of Mayhem</option>
                     <option value="Draining Inferniarch Bow">Draining Inferniarch Bow</option>
                     <option value="Dream Blossom">Dream Blossom</option>
+                    <option value="Driller Crossbow">Driller Crossbow</option>
+                    <option value="Eagle Crossbow">Eagle Crossbow</option>
                     <option value="Eldritch Bow">Eldritch Bow</option>
                     <option value="Eldritch Claymore">Eldritch Claymore</option>
                     <option value="Eldritch Great Axe">Eldritch Great Axe</option>
@@ -179,6 +186,7 @@
                     <option value="Lion Rod">Lion Rod</option>
                     <option value="Lion Wand">Lion Wand</option>
                     <option value="Living Vine Bow">Living Vine Bow</option>
+                    <option value="Ornate Crossbow">Ornate Crossbow</option>
                     <option value="Rending Inferniarch Bow">Rending Inferniarch Bow</option>
                     <option value="Resizer">Resizer</option>
                     <option value="Rod of Destruction">Rod of Destruction</option>
@@ -198,6 +206,8 @@
                     <option value="Wand of Defiance">Wand of Defiance</option>
                     <option value="Wand of Destruction">Wand of Destruction</option>
                     <option value="Winterblade">Winterblade</option>
+                    <option value="Withering Crossbow">Withering Crossbow</option>
+                    <option value="Yalahari Crossbow">Yalahari Crossbow</option>
                 </select>
             </div>
             <div style="flex:1.5;">
@@ -332,6 +342,47 @@
         const deleteHuntBtn = document.getElementById('deleteHuntBtn');
         const adminIndicator = document.getElementById('adminIndicator');
 
+        // ----- Listas de armas de longo alcance (para identificar munição) -----
+        const bowWeapons = [
+            'Amber Bow',
+            'Bow of Cataclysm',
+            'Bow of Destruction',
+            'Draining Inferniarch Bow',
+            'Dream Blossom',
+            'Eldritch Bow',
+            'Falcon Bow',
+            'Gilded Eldritch Bow',
+            'Inferniarch Bow',
+            'Lion Longbow',
+            'Living Vine Bow',
+            'Rending Inferniarch Bow',
+            'Rotten Blossom',
+            'Siphoning Inferniarch Bow',
+            'Soulbleeder',
+            'Springsprout',
+            'Thorn Spitter'
+        ];
+
+        const crossbowWeapons = [
+            'Amber Crossbow',
+            'Arbalest',
+            'Assassin Crossbow',
+            'Atletica Crossbow',
+            'Bellum Crossbow',
+            'Chain Bolter',
+            'Cobra Crossbow',
+            'Crossbow of Destruction',
+            'Crossbow of Mayhem',
+            'Driller Crossbow',
+            'Eagle Crossbow',
+            'Ornate Crossbow',
+            'Soulmaimer',
+            'Soulshredder',
+            'The Devileye',
+            'Withering Crossbow',
+            'Yalahari Crossbow'
+        ];
+
         // ----- Banco de dados de munições (ordenado alfabeticamente) -----
         const AMMO_DB = {
             'arrow': [
@@ -351,39 +402,54 @@
                 { name: 'Vexclaw Arrow', damage: 60 }
             ],
             'bolt': [
+                { name: 'Assassin Bolt', damage: 55 },
+                { name: 'Berserk Bolt', damage: 65 },
                 { name: 'Bolt', damage: 40 },
                 { name: 'Divine Bolt', damage: 82 },
                 { name: 'Drill Bolt', damage: 60 },
                 { name: 'Earth Bolt', damage: 50 },
                 { name: 'Energy Bolt', damage: 50 },
+                { name: 'Envenomed Bolt', damage: 50 },
+                { name: 'Explosive Bolt', damage: 60 },
                 { name: 'Flame Bolt', damage: 50 },
+                { name: 'Flash Bolt', damage: 55 },
                 { name: 'Frost Bolt', damage: 50 },
+                { name: 'Glowing Bolt', damage: 45 },
+                { name: 'Heavy Bolt', damage: 45 },
+                { name: 'Hunting Bolt', damage: 40 },
+                { name: 'Infernium Bolt', damage: 70 },
+                { name: 'Iron Bolt', damage: 35 },
+                { name: 'Jungle Bolt', damage: 50 },
+                { name: 'Magma Bolt', damage: 50 },
+                { name: 'Marsh Bolt', damage: 50 },
+                { name: 'Metal Bolt', damage: 40 },
+                { name: 'Mystic Bolt', damage: 60 },
+                { name: 'Piercing Bolt', damage: 55 },
+                { name: 'Poison Bolt', damage: 50 },
                 { name: 'Power Bolt', damage: 58 },
                 { name: 'Prismatic Bolt', damage: 78 },
+                { name: 'Quicksand Bolt', damage: 50 },
+                { name: 'Rending Bolt', damage: 70 },
+                { name: 'Rusty Bolt', damage: 30 },
+                { name: 'Searing Bolt', damage: 55 },
+                { name: 'Shiver Bolt', damage: 50 },
                 { name: 'Spectral Bolt', damage: 50 },
+                { name: 'Tainted Bolt', damage: 50 },
+                { name: 'Tarsal Bolt', damage: 60 },
                 { name: 'Thorn Bolt', damage: 60 },
-                { name: 'Vexclaw Bolt', damage: 72 }
+                { name: 'Vexclaw Bolt', damage: 72 },
+                { name: 'Viper Bolt', damage: 55 },
+                { name: 'War Bolt', damage: 45 },
+                { name: 'Withering Bolt', damage: 65 }
             ]
         };
 
         // ----- Função para atualizar o seletor de munição com base na arma selecionada -----
         window.updateAmmoSelect = function() {
             const weapon = weaponSelect.value;
-            const weaponLower = weapon.toLowerCase();
             ammoSelect.innerHTML = '<option value="0">Nenhuma</option>';
             
-            // Verifica se é uma arma de longo alcance (bow ou crossbow)
-            const isBow = weaponLower.includes('bow') && !weaponLower.includes('crossbow') ||
-                          weaponLower.includes('longbow') ||
-                          weaponLower.includes('soulbleeder') ||
-                          weaponLower.includes('thorn spitter');
-            const isCrossbow = weaponLower.includes('crossbow') ||
-                               weaponLower.includes('chain bolter') ||
-                               weaponLower.includes('soulshredder') ||
-                               weaponLower.includes('soulmaimer') ||
-                               weaponLower.includes('devileye');
-            
-            if (isBow) {
+            if (bowWeapons.includes(weapon)) {
                 const ammoList = AMMO_DB['arrow'];
                 ammoList.forEach(ammo => {
                     const option = document.createElement('option');
@@ -391,7 +457,7 @@
                     option.textContent = `${ammo.name} (dano médio: ${ammo.damage})`;
                     ammoSelect.appendChild(option);
                 });
-            } else if (isCrossbow) {
+            } else if (crossbowWeapons.includes(weapon)) {
                 const ammoList = AMMO_DB['bolt'];
                 ammoList.forEach(ammo => {
                     const option = document.createElement('option');
@@ -400,7 +466,7 @@
                     ammoSelect.appendChild(option);
                 });
             }
-            // Se não for arma de distância, não adiciona opções (já tem "Nenhuma")
+            // Se não for arma de longo alcance, não adiciona opções (já tem "Nenhuma")
         };
 
         // ----- Formatação de números (duas casas decimais, ponto como separador de milhar) -----
@@ -428,7 +494,6 @@
         const STORAGE_KEY = 'tibiaDamageHunts';
 
         // ----- Multiplicadores de Major Charms (causam dano) -----
-        // Incluindo todos os charms listados no select (e alguns extras da descrição)
         const MAJOR_MULTIPLIERS = {
             'normal': { 1: 0, 2: 0, 3: 0 },
             'curse': { 1: 0.05, 2: 0.06, 3: 0.07 },
@@ -436,15 +501,15 @@
             'dodge': { 1: 0, 2: 0, 3: 0 },
             'enflame': { 1: 0.05, 2: 0.06, 3: 0.07 },
             'freeze': { 1: 0.05, 2: 0.06, 3: 0.07 },
-            'frost': { 1: 0.05, 2: 0.06, 3: 0.07 },    // adicionado
+            'frost': { 1: 0.05, 2: 0.06, 3: 0.07 },
             'gut': { 1: 0.10, 2: 0.12, 3: 0.14 },
             'low blow': { 1: 0.08, 2: 0.08, 3: 0.08 },
             'parry': { 1: 0.25, 2: 0.25, 3: 0.25 },
             'poison': { 1: 0.05, 2: 0.06, 3: 0.07 },
             'savage blow': { 1: 0.4, 2: 0.4, 3: 0.4 },
-            'scorch': { 1: 0.05, 2: 0.06, 3: 0.07 },   // adicionado
-            'vampirism': { 1: 0.05, 2: 0.06, 3: 0.07 }, // adicionado (valor estimado)
-            'venom': { 1: 0.05, 2: 0.06, 3: 0.07 },     // adicionado
+            'scorch': { 1: 0.05, 2: 0.06, 3: 0.07 },
+            'vampirism': { 1: 0.05, 2: 0.06, 3: 0.07 },
+            'venom': { 1: 0.05, 2: 0.06, 3: 0.07 },
             'wound': { 1: 0.05, 2: 0.06, 3: 0.07 },
             'zap': { 1: 0.05, 2: 0.06, 3: 0.07 }
         };
@@ -602,7 +667,7 @@
                         { name: 'Young Goanna', qty: 319, hp: 6944, weakness: 1.2, majorType: 'Zap', majorLevel: 2, minorType: 'Void Inversion', minorLevel: 2 },
                         { name: 'Feral Sphinx', qty: 292, hp: 9800, weakness: 1.15, majorType: 'Freeze', majorLevel: 3, minorType: 'Nenhum', minorLevel: 1 }
                     ]
-                }, // <-- VÍRGULA ADICIONADA AQUI
+                },
                 {
                     id: generateId(),
                     name: 'Ruins of Nuur',
@@ -727,7 +792,7 @@
             });
 
             const totalDamage = physDamage + majorTotal;
-            // Base leech aplicada apenas ao dano físico (como sugerido)
+            // Base leech aplicada apenas ao dano físico
             const lifeLeechBasePercent = (parseFloat(lifeLeechInput.value) || 0) / 100;
             const manaLeechBasePercent = (parseFloat(manaLeechInput.value) || 0) / 100;
             const lifeLeechBase = physDamage * lifeLeechBasePercent;
