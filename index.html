@@ -202,16 +202,14 @@
                     <option value="Tagralt Blade">Tagralt Blade</option>
                     <option value="The Devileye">The Devileye</option>
                     <option value="Thorn Spitter">Thorn Spitter</option>
-                    <option value="Umbrella">Umbrella</option>
+                    <option value="Umbrall Master Crossbow">Umbrall Master Crossbow</option>
                     <option value="Wand of Defiance">Wand of Defiance</option>
                     <option value="Wand of Destruction">Wand of Destruction</option>
                     <option value="Winterblade">Winterblade</option>
-                    <option value="Withering Crossbow">Withering Crossbow</option>
-                    <option value="Yalahari Crossbow">Yalahari Crossbow</option>
                 </select>
             </div>
             <div style="flex:1.5;">
-                <label>Munição (em ordem alfabética)</label>
+                <label>Munição</label>
                 <select id="ammoSelect">
                     <option value="0">Nenhuma</option>
                 </select>
@@ -309,7 +307,7 @@
     </div>
 
     <!-- Créditos -->
-    <div class="credits">Criado por Cedine Rush · Versão com Listas Ordenadas</div>
+    <div class="credits">Criado por: Cedine Rush [Royal Paladin]·</div>
 </div>
 
 <script>
@@ -379,6 +377,7 @@
             'Soulmaimer',
             'Soulshredder',
             'The Devileye',
+            'Umbrall Master Crossbow',
             'Withering Crossbow',
             'Yalahari Crossbow'
         ];
@@ -386,61 +385,31 @@
         // ----- Banco de dados de munições (ordenado alfabeticamente) -----
         const AMMO_DB = {
             'arrow': [
-                { name: 'Arrow', damage: 30 },
-                { name: 'Crystalline Arrow', damage: 55 },
-                { name: 'Diamond Arrow', damage: 35 },
-                { name: 'Divine Arrow', damage: 70 },
-                { name: 'Drill Arrow', damage: 45 },
-                { name: 'Earth Arrow', damage: 40 },
-                { name: 'Energy Arrow', damage: 40 },
-                { name: 'Flame Arrow', damage: 40 },
-                { name: 'Frost Arrow', damage: 40 },
-                { name: 'Prismatic Arrow', damage: 65 },
-                { name: 'Sniper Arrow', damage: 50 },
-                { name: 'Spectral Arrow', damage: 40 },
-                { name: 'Thorn Arrow', damage: 50 },
-                { name: 'Vexclaw Arrow', damage: 60 }
+                { name: 'Arrow', damage: 25 },
+                { name: 'Burst Arrow', damage: 27},
+                { name: 'Crystalline Arrow', damage: 65 },
+                { name: 'Diamond Arrow', damage: 37 },
+                { name: 'Earth Arrow', damage: 14, damageElemental: 14 },
+                { name: 'Envenomed Arrow', damage: 27, damageElemental: 27 },
+                { name: 'Flaming Arrow', damage: 14, damageElemental: 14 },
+                { name: 'Flash Arrow', damage: 14, damageElemental: 14 },
+                { name: 'Onyx Arrow', damage: 38 },
+                { name: 'Poison Arrow', damage: 23 },
+                { name: 'Shiver Arrow', damage: 14, damageElemental: 14 },
+                { name: 'Simple Arrow', damage: 20 },
+                { name: 'Sniper Arrow', damage: 28 },
+                { name: 'Tarsal Arrow', damage: 33 }
             ],
             'bolt': [
-                { name: 'Assassin Bolt', damage: 55 },
-                { name: 'Berserk Bolt', damage: 65 },
-                { name: 'Bolt', damage: 40 },
-                { name: 'Divine Bolt', damage: 82 },
-                { name: 'Drill Bolt', damage: 60 },
-                { name: 'Earth Bolt', damage: 50 },
-                { name: 'Energy Bolt', damage: 50 },
-                { name: 'Envenomed Bolt', damage: 50 },
-                { name: 'Explosive Bolt', damage: 60 },
-                { name: 'Flame Bolt', damage: 50 },
-                { name: 'Flash Bolt', damage: 55 },
-                { name: 'Frost Bolt', damage: 50 },
-                { name: 'Glowing Bolt', damage: 45 },
-                { name: 'Heavy Bolt', damage: 45 },
-                { name: 'Hunting Bolt', damage: 40 },
-                { name: 'Infernium Bolt', damage: 70 },
-                { name: 'Iron Bolt', damage: 35 },
-                { name: 'Jungle Bolt', damage: 50 },
-                { name: 'Magma Bolt', damage: 50 },
-                { name: 'Marsh Bolt', damage: 50 },
-                { name: 'Metal Bolt', damage: 40 },
-                { name: 'Mystic Bolt', damage: 60 },
-                { name: 'Piercing Bolt', damage: 55 },
-                { name: 'Poison Bolt', damage: 50 },
-                { name: 'Power Bolt', damage: 58 },
-                { name: 'Prismatic Bolt', damage: 78 },
-                { name: 'Quicksand Bolt', damage: 50 },
-                { name: 'Rending Bolt', damage: 70 },
-                { name: 'Rusty Bolt', damage: 30 },
-                { name: 'Searing Bolt', damage: 55 },
-                { name: 'Shiver Bolt', damage: 50 },
-                { name: 'Spectral Bolt', damage: 50 },
-                { name: 'Tainted Bolt', damage: 50 },
-                { name: 'Tarsal Bolt', damage: 60 },
-                { name: 'Thorn Bolt', damage: 60 },
-                { name: 'Vexclaw Bolt', damage: 72 },
-                { name: 'Viper Bolt', damage: 55 },
-                { name: 'War Bolt', damage: 45 },
-                { name: 'Withering Bolt', damage: 65 }
+
+                { name: 'Bolt', damage: 30 },
+                { name: 'Drill Bolt', damage: 56},
+                { name: 'Infernal Bolt', damage: 72},
+                { name: 'Piercing Bolt', damage: 33},
+                { name: 'Power Bolt', damage: 40},
+                { name: 'Prismatic Bolt', damage: 66},
+                { name: 'Spectral Bolt', damage: 78},
+                { name: 'Vortex Bolt', damage: 36}
             ]
         };
 
