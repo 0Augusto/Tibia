@@ -343,43 +343,63 @@
         // ----- Listas de armas de longo alcance (para identificar munição) -----
         const bowWeapons = [
             'Amber Bow',
+            'Bow',
             'Bow of Cataclysm',
             'Bow of Destruction',
+            'Composite Hornbow',
+            'Crude Umbral Bow',
+            'Crypt Spine',
             'Draining Inferniarch Bow',
-            'Dream Blossom',
             'Eldritch Bow',
+            'Elvish Bow',
             'Falcon Bow',
             'Gilded Eldritch Bow',
+            'Grand Sanguine Bow',
+            'Hive Bow',
+            'Icicle Bow',
             'Inferniarch Bow',
+            'Jungle Bow',
             'Lion Longbow',
             'Living Vine Bow',
+            'Musicians Bow',
+            'Mycological Bow',
+            'Refined Bow',
             'Rending Inferniarch Bow',
-            'Rotten Blossom',
+            'Rift Bow',
+            'Sanguine Bow',
+            'Shimmer Bow',
+            'Silkweaver Bow',
             'Siphoning Inferniarch Bow',
             'Soulbleeder',
-            'Springsprout',
-            'Thorn Spitter'
+            'Umbral Master Bow',
+            'Yols Bow'
         ];
 
         const crossbowWeapons = [
             'Amber Crossbow',
             'Arbalest',
-            'Assassin Crossbow',
-            'Atletica Crossbow',
-            'Bellum Crossbow',
             'Chain Bolter',
             'Cobra Crossbow',
-            'Crossbow of Destruction',
-            'Crossbow of Mayhem',
-            'Driller Crossbow',
-            'Eagle Crossbow',
+            'Crossbow',
+            'Crude Umbral Crossbow',
+            'Crystal Crossbow',
+            'Draining Inferniarch Crossbow',
+            'Grand Sanguine Crossbow',
+            'Inferniarch Arbalest',
+            'Modified Crossbow',
+            'Naga Crossbow',
             'Ornate Crossbow',
-            'Soulmaimer',
-            'Soulshredder',
+            'Rending Inferniarch Arbalest',
+            'Rift Crossbow',
+            'Royal Crossbow',
+            'Sanguine Crossbow',
+            'Siphoning Inferniarch Crossbow',
+            'Soulpiercer',
             'The Devileye',
-            'Umbrall Master Crossbow',
-            'Withering Crossbow',
-            'Yalahari Crossbow'
+            'The Ironworker',
+            'Thorn Spitter',
+            'Umbral Crossbow',
+            'Umbral Master Crossbow'
         ];
 
         // ----- Banco de dados de munições (ordenado alfabeticamente) -----
@@ -465,22 +485,17 @@
         // ----- Multiplicadores de Major Charms (causam dano) -----
         const MAJOR_MULTIPLIERS = {
             'normal': { 1: 0, 2: 0, 3: 0 },
-            'curse': { 1: 0.05, 2: 0.06, 3: 0.07 },
-            'divine wrath': { 1: 0.05, 2: 0.06, 3: 0.07 },
+            'curse': { 1: 0.05, 2: 0.10, 3: 0.11 },
+            'divine wrath': { 1: 0.05, 2: 0.10, 3: 0.11 },
             'dodge': { 1: 0, 2: 0, 3: 0 },
-            'enflame': { 1: 0.05, 2: 0.06, 3: 0.07 },
-            'freeze': { 1: 0.05, 2: 0.06, 3: 0.07 },
-            'frost': { 1: 0.05, 2: 0.06, 3: 0.07 },
-            'gut': { 1: 0.10, 2: 0.12, 3: 0.14 },
+            'enflame': { 1: 0.05, 2: 0.10, 3: 0.11 },
+            'freeze': { 1: 0.05, 2: 0.10, 3: 0.11 },
             'low blow': { 1: 0.08, 2: 0.08, 3: 0.08 },
             'parry': { 1: 0.25, 2: 0.25, 3: 0.25 },
-            'poison': { 1: 0.05, 2: 0.06, 3: 0.07 },
+            'poison': { 1: 0.05, 2: 0.10, 3: 0.11 },
             'savage blow': { 1: 0.4, 2: 0.4, 3: 0.4 },
-            'scorch': { 1: 0.05, 2: 0.06, 3: 0.07 },
-            'vampirism': { 1: 0.05, 2: 0.06, 3: 0.07 },
-            'venom': { 1: 0.05, 2: 0.06, 3: 0.07 },
-            'wound': { 1: 0.05, 2: 0.06, 3: 0.07 },
-            'zap': { 1: 0.05, 2: 0.06, 3: 0.07 }
+            'wound': { 1: 0.05, 2: 0.10, 3: 0.11 },
+            'zap': { 1: 0.05, 2: 0.10, 3: 0.11 }
         };
 
         // ----- Multiplicadores dos Minor Charms -----
@@ -515,15 +530,11 @@
             'Dodge',
             'Enflame',
             'Freeze',
-            'Frost',
             'Gut',
             'Low Blow',
             'Parry',
             'Poison',
             'Savage Blow',
-            'Scorch',
-            'Vampirism',
-            'Venom',
             'Wound',
             'Zap'
         ];
@@ -550,7 +561,7 @@
 
         // ----- Cálculo do ataque base considerando skill e munição -----
         function calculateAttackBase() {
-            const level = parseFloat(levelInput.value) || 107;
+            const level = parseFloat(levelInput.value) || 100;
             const skillType = skillTypeSelect.value;
             const skillValue = parseFloat(skillValueInput.value) || 0;
             const bonusEquip = parseFloat(bonusEquipInput.value) || 0;
