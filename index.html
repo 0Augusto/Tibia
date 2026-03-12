@@ -372,22 +372,35 @@
             const weaponLower = weapon.toLowerCase();
             ammoSelect.innerHTML = '<option value="0">Nenhuma</option>';
             
-            let ammoType = null;
-            if (weaponLower.includes('bow') || weaponLower.includes('longbow') || weaponLower.includes('soulbleeder') || weaponLower.includes('thorn spitter')) {
-                ammoType = 'arrow';
-            } else if (weaponLower.includes('crossbow') || weaponLower.includes('chain bolter') || weaponLower.includes('soulshredder') || weaponLower.includes('soulmaimer') || weaponLower.includes('devileye')) {
-                ammoType = 'bolt';
-            } else {
-                return; // Não é arma de distância, não mostra munições
-            }
+            // Verifica se é uma arma de longo alcance (bow ou crossbow)
+            const isBow = weaponLower.includes('bow') && !weaponLower.includes('crossbow') ||
+                          weaponLower.includes('longbow') ||
+                          weaponLower.includes('soulbleeder') ||
+                          weaponLower.includes('thorn spitter');
+            const isCrossbow = weaponLower.includes('crossbow') ||
+                               weaponLower.includes('chain bolter') ||
+                               weaponLower.includes('soulshredder') ||
+                               weaponLower.includes('soulmaimer') ||
+                               weaponLower.includes('devileye');
             
-            const ammoList = AMMO_DB[ammoType];
-            ammoList.forEach(ammo => {
-                const option = document.createElement('option');
-                option.value = ammo.damage;
-                option.textContent = `${ammo.name} (dano médio: ${ammo.damage})`;
-                ammoSelect.appendChild(option);
-            });
+            if (isBow) {
+                const ammoList = AMMO_DB['arrow'];
+                ammoList.forEach(ammo => {
+                    const option = document.createElement('option');
+                    option.value = ammo.damage;
+                    option.textContent = `${ammo.name} (dano médio: ${ammo.damage})`;
+                    ammoSelect.appendChild(option);
+                });
+            } else if (isCrossbow) {
+                const ammoList = AMMO_DB['bolt'];
+                ammoList.forEach(ammo => {
+                    const option = document.createElement('option');
+                    option.value = ammo.damage;
+                    option.textContent = `${ammo.name} (dano médio: ${ammo.damage})`;
+                    ammoSelect.appendChild(option);
+                });
+            }
+            // Se não for arma de distância, não adiciona opções (já tem "Nenhuma")
         };
 
         // ----- Formatação de números (duas casas decimais, ponto como separador de milhar) -----
@@ -415,6 +428,7 @@
         const STORAGE_KEY = 'tibiaDamageHunts';
 
         // ----- Multiplicadores de Major Charms (causam dano) -----
+        // Incluindo todos os charms listados no select (e alguns extras da descrição)
         const MAJOR_MULTIPLIERS = {
             'normal': { 1: 0, 2: 0, 3: 0 },
             'curse': { 1: 0.05, 2: 0.06, 3: 0.07 },
@@ -422,11 +436,15 @@
             'dodge': { 1: 0, 2: 0, 3: 0 },
             'enflame': { 1: 0.05, 2: 0.06, 3: 0.07 },
             'freeze': { 1: 0.05, 2: 0.06, 3: 0.07 },
+            'frost': { 1: 0.05, 2: 0.06, 3: 0.07 },    // adicionado
             'gut': { 1: 0.10, 2: 0.12, 3: 0.14 },
             'low blow': { 1: 0.08, 2: 0.08, 3: 0.08 },
             'parry': { 1: 0.25, 2: 0.25, 3: 0.25 },
             'poison': { 1: 0.05, 2: 0.06, 3: 0.07 },
             'savage blow': { 1: 0.4, 2: 0.4, 3: 0.4 },
+            'scorch': { 1: 0.05, 2: 0.06, 3: 0.07 },   // adicionado
+            'vampirism': { 1: 0.05, 2: 0.06, 3: 0.07 }, // adicionado (valor estimado)
+            'venom': { 1: 0.05, 2: 0.06, 3: 0.07 },     // adicionado
             'wound': { 1: 0.05, 2: 0.06, 3: 0.07 },
             'zap': { 1: 0.05, 2: 0.06, 3: 0.07 }
         };
@@ -584,16 +602,15 @@
                         { name: 'Young Goanna', qty: 319, hp: 6944, weakness: 1.2, majorType: 'Zap', majorLevel: 2, minorType: 'Void Inversion', minorLevel: 2 },
                         { name: 'Feral Sphinx', qty: 292, hp: 9800, weakness: 1.15, majorType: 'Freeze', majorLevel: 3, minorType: 'Nenhum', minorLevel: 1 }
                     ]
-                }
+                }, // <-- VÍRGULA ADICIONADA AQUI
                 {
-                id: generateId(),
-                name: 'Bulltaur Lair (-1)',
-                monsters: [
-                    { name: 'Girtablilu Warrior', qty: 571, hp: 8500, weakness: 1.2, majorType: 'Normal', majorLevel: 1, minorType: 'Vampiric Embrace', minorLevel: 2 },
-                    { name: 'Venerable Girtablilu', qty: 209, hp: 8500, weakness: 1.1, majorType: 'Divine Wrath', majorLevel: 2, minorType: 'Void\'s Call', minorLevel: 1 },
-                    
-                         ]
-                     },
+                    id: generateId(),
+                    name: 'Ruins of Nuur',
+                    monsters: [
+                        { name: 'Girtablilu Warrior', qty: 571, hp: 8500, weakness: 1.2, majorType: 'Normal', majorLevel: 1, minorType: 'Vampiric Embrace', minorLevel: 2 },
+                        { name: 'Venerable Girtablilu', qty: 209, hp: 8500, weakness: 1.1, majorType: 'Divine Wrath', majorLevel: 2, minorType: 'Void\'s Call', minorLevel: 1 }
+                    ]
+                }
             ];
             currentHuntId = hunts[0].id;
         }
@@ -638,7 +655,7 @@
         }
 
         function calculateMinorDamage(m) {
-            return 0;
+            return 0; // Minor charms não causam dano direto
         }
 
         // ----- Cálculo do dano médio por ataque considerando crítico, fatal e munição -----
@@ -648,8 +665,8 @@
             const baseDamage = attackBase + autoExtra;
             
             // Chances e multiplicadores
-            const critChance = parseFloat(critChanceInput.value) / 100;
-            const critExtra = parseFloat(critDamageInput.value) / 100;
+            const critChance = (parseFloat(critChanceInput.value) || 0) / 100;
+            const critExtra = (parseFloat(critDamageInput.value) || 0) / 100;
             const tier = parseInt(weaponTier.value) || 0;
             const fatalChance = FATAL_CHANCE[tier] || 0;
             
@@ -667,8 +684,8 @@
                         (1 - critChance) * fatalChance * danoFatal +
                         critChance * fatalChance * danoCritFatal;
             
-            const lifeLeech = avg * (parseFloat(lifeLeechInput.value) / 100);
-            const manaLeech = avg * (parseFloat(manaLeechInput.value) / 100);
+            const lifeLeech = avg * ((parseFloat(lifeLeechInput.value) || 0) / 100);
+            const manaLeech = avg * ((parseFloat(manaLeechInput.value) || 0) / 100);
             
             const skillType = skillTypeSelect.options[skillTypeSelect.selectedIndex].text;
             const weaponName = weaponSelect.options[weaponSelect.selectedIndex].text;
@@ -684,7 +701,7 @@
         // ----- Calcular totais por hora e sustain com charms e fatal -----
         calcTotalBtn.addEventListener('click', () => {
             const avgData = calculateAverageDamageWithFatal();
-            const attacksPerHour = parseFloat(attacksPerMinInput.value) * 60;
+            const attacksPerHour = (parseFloat(attacksPerMinInput.value) || 0) * 60;
             const physDamage = avgData.avg * attacksPerHour;
 
             const monsters = getCurrentMonsters();
@@ -710,10 +727,11 @@
             });
 
             const totalDamage = physDamage + majorTotal;
-            const lifeLeechBasePercent = parseFloat(lifeLeechInput.value) / 100;
-            const manaLeechBasePercent = parseFloat(manaLeechInput.value) / 100;
-            const lifeLeechBase = totalDamage * lifeLeechBasePercent;
-            const manaLeechBase = totalDamage * manaLeechBasePercent;
+            // Base leech aplicada apenas ao dano físico (como sugerido)
+            const lifeLeechBasePercent = (parseFloat(lifeLeechInput.value) || 0) / 100;
+            const manaLeechBasePercent = (parseFloat(manaLeechInput.value) || 0) / 100;
+            const lifeLeechBase = physDamage * lifeLeechBasePercent;
+            const manaLeechBase = physDamage * manaLeechBasePercent;
 
             const lifeLeechTotal = lifeLeechBase + lifeLeechBonusTotal;
             const manaLeechTotal = manaLeechBase + manaLeechBonusTotal;
