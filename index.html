@@ -416,23 +416,17 @@
 
         // ----- Multiplicadores de Major Charms (causam dano) -----
         const MAJOR_MULTIPLIERS = {
-            'adrenaline burst': { 1: 0, 2: 0, 3: 0 },
+            'normal': { 1: 0, 2: 0, 3: 0 },
             'curse': { 1: 0.05, 2: 0.06, 3: 0.07 },
             'divine wrath': { 1: 0.05, 2: 0.06, 3: 0.07 },
             'dodge': { 1: 0, 2: 0, 3: 0 },
             'enflame': { 1: 0.05, 2: 0.06, 3: 0.07 },
             'freeze': { 1: 0.05, 2: 0.06, 3: 0.07 },
-            'frost': { 1: 0.05, 2: 0.06, 3: 0.07 },
             'gut': { 1: 0.10, 2: 0.12, 3: 0.14 },
             'low blow': { 1: 0.08, 2: 0.08, 3: 0.08 },
-            'momentum': { 1: 0, 2: 0, 3: 0 },
-            'normal': { 1: 0, 2: 0, 3: 0 },
             'parry': { 1: 0.25, 2: 0.25, 3: 0.25 },
             'poison': { 1: 0.05, 2: 0.06, 3: 0.07 },
             'savage blow': { 1: 0.4, 2: 0.4, 3: 0.4 },
-            'scorch': { 1: 0.05, 2: 0.06, 3: 0.07 },
-            'vampirism': { 1: 0, 2: 0, 3: 0 },
-            'venom': { 1: 0.05, 2: 0.06, 3: 0.07 },
             'wound': { 1: 0.05, 2: 0.06, 3: 0.07 },
             'zap': { 1: 0.05, 2: 0.06, 3: 0.07 }
         };
@@ -463,7 +457,7 @@
 
         // ----- Listas para os selects (ordenadas alfabeticamente) -----
         const MAJOR_OPTIONS = [
-            'Adrenaline Burst',
+            'Normal',
             'Curse',
             'Divine Wrath',
             'Dodge',
@@ -472,8 +466,6 @@
             'Frost',
             'Gut',
             'Low Blow',
-            'Momentum',
-            'Normal',
             'Parry',
             'Poison',
             'Savage Blow',
@@ -576,7 +568,7 @@
             hunts = [
                 {
                     id: generateId(),
-                    name: 'Bulltaur Lair',
+                    name: 'Bulltaur Lair (-1)',
                     monsters: [
                         { name: 'Bulltaur Alchemist', qty: 614, hp: 5960, weakness: 1.2, majorType: 'Normal', majorLevel: 1, minorType: 'Vampiric Embrace', minorLevel: 2 },
                         { name: 'Bulltaur Brute', qty: 607, hp: 6560, weakness: 1.1, majorType: 'Divine Wrath', majorLevel: 2, minorType: 'Void\'s Call', minorLevel: 1 },
@@ -585,7 +577,7 @@
                 },
                 {
                     id: generateId(),
-                    name: 'Goannas',
+                    name: 'Goanna Direita',
                     monsters: [
                         { name: 'Adult Goanna', qty: 359, hp: 8300, weakness: 1.2, majorType: 'Zap', majorLevel: 2, minorType: 'Vampiric Embrace', minorLevel: 1 },
                         { name: 'Manticore', qty: 340, hp: 6700, weakness: 1.2, majorType: 'Freeze', majorLevel: 1, minorType: 'Void\'s Call', minorLevel: 3 },
@@ -593,6 +585,15 @@
                         { name: 'Feral Sphinx', qty: 292, hp: 9800, weakness: 1.15, majorType: 'Freeze', majorLevel: 3, minorType: 'Nenhum', minorLevel: 1 }
                     ]
                 }
+                {
+                id: generateId(),
+                name: 'Bulltaur Lair (-1)',
+                monsters: [
+                    { name: 'Girtablilu Warrior', qty: 571, hp: 8500, weakness: 1.2, majorType: 'Normal', majorLevel: 1, minorType: 'Vampiric Embrace', minorLevel: 2 },
+                    { name: 'Venerable Girtablilu', qty: 209, hp: 8500, weakness: 1.1, majorType: 'Divine Wrath', majorLevel: 2, minorType: 'Void\'s Call', minorLevel: 1 },
+                    
+                         ]
+                     },
             ];
             currentHuntId = hunts[0].id;
         }
