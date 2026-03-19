@@ -339,8 +339,9 @@
         const renameHuntBtn = document.getElementById('renameHuntBtn');
         const deleteHuntBtn = document.getElementById('deleteHuntBtn');
         const adminIndicator = document.getElementById('adminIndicator');
+        const ammoContainer = document.getElementById('ammoContainer') || document.createElement('div'); // fallback
 
-        // ----- Listas de armas de longo alcance (para identificar munição) -----
+        // ----- Listas completas de armas de longo alcance -----
         const bowWeapons = [
             'Amber Bow',
             'Bow',
@@ -350,6 +351,7 @@
             'Crude Umbral Bow',
             'Crypt Spine',
             'Draining Inferniarch Bow',
+            'Dream Blossom',
             'Eldritch Bow',
             'Elvish Bow',
             'Falcon Bow',
@@ -366,11 +368,13 @@
             'Refined Bow',
             'Rending Inferniarch Bow',
             'Rift Bow',
+            'Rotten Blossom',
             'Sanguine Bow',
             'Shimmer Bow',
             'Silkweaver Bow',
             'Siphoning Inferniarch Bow',
             'Soulbleeder',
+            'Springsprout',
             'Umbral Master Bow',
             'Yols Bow'
         ];
@@ -378,12 +382,19 @@
         const crossbowWeapons = [
             'Amber Crossbow',
             'Arbalest',
+            'Assassin Crossbow',
+            'Atletica Crossbow',
+            'Bellum Crossbow',
             'Chain Bolter',
             'Cobra Crossbow',
             'Crossbow',
+            'Crossbow of Destruction',
+            'Crossbow of Mayhem',
             'Crude Umbral Crossbow',
             'Crystal Crossbow',
             'Draining Inferniarch Crossbow',
+            'Driller Crossbow',
+            'Eagle Crossbow',
             'Grand Sanguine Crossbow',
             'Inferniarch Arbalest',
             'Modified Crossbow',
@@ -394,12 +405,14 @@
             'Royal Crossbow',
             'Sanguine Crossbow',
             'Siphoning Inferniarch Crossbow',
+            'Soulmaimer',
             'Soulpiercer',
             'The Devileye',
             'The Ironworker',
             'Thorn Spitter',
             'Umbral Crossbow',
-            'Umbral Master Crossbow'
+            'Umbral Master Crossbow',
+            'Umbrall Master Crossbow'
         ];
 
         // ----- Banco de dados de munições (ordenado alfabeticamente) -----
@@ -421,7 +434,6 @@
                 { name: 'Tarsal Arrow', damage: 33 }
             ],
             'bolt': [
-
                 { name: 'Bolt', damage: 30 },
                 { name: 'Drill Bolt', damage: 56},
                 { name: 'Infernal Bolt', damage: 72},
@@ -440,22 +452,27 @@
             
             if (bowWeapons.includes(weapon)) {
                 const ammoList = AMMO_DB['arrow'];
+                ammoList.sort((a, b) => a.name.localeCompare(b.name));
                 ammoList.forEach(ammo => {
                     const option = document.createElement('option');
                     option.value = ammo.damage;
                     option.textContent = `${ammo.name} (dano médio: ${ammo.damage})`;
                     ammoSelect.appendChild(option);
                 });
+                ammoContainer.style.display = 'block';
             } else if (crossbowWeapons.includes(weapon)) {
                 const ammoList = AMMO_DB['bolt'];
+                ammoList.sort((a, b) => a.name.localeCompare(b.name));
                 ammoList.forEach(ammo => {
                     const option = document.createElement('option');
                     option.value = ammo.damage;
                     option.textContent = `${ammo.name} (dano médio: ${ammo.damage})`;
                     ammoSelect.appendChild(option);
                 });
+                ammoContainer.style.display = 'block';
+            } else {
+                ammoContainer.style.display = 'none';
             }
-            // Se não for arma de longo alcance, não adiciona opções (já tem "Nenhuma")
         };
 
         // ----- Formatação de números (duas casas decimais, ponto como separador de milhar) -----
@@ -744,7 +761,7 @@
         calcAvgBtn.addEventListener('click', calculateAverageDamageWithFatal);
 
         // ----- Calcular totais por hora e sustain com charms e fatal -----
-        calcTotalBtn.addEventListener('click', () => {
+        function updateTotals() {
             const avgData = calculateAverageDamageWithFatal();
             const attacksPerHour = (parseFloat(attacksPerMinInput.value) || 0) * 60;
             const physDamage = avgData.avg * attacksPerHour;
@@ -791,7 +808,9 @@
                                     `Fatal: ${(fatalChance*100).toFixed(2)}% de chance para +60% de dano (já incluso no dano físico)<br>` +
                                     `Life Leech/h: ${formatNumber(lifeLeechBase)} (base) + ${formatNumber(lifeLeechBonusTotal)} (charms) = <strong>${formatNumber(lifeLeechTotal)}</strong><br>` +
                                     `Mana Leech/h: ${formatNumber(manaLeechBase)} (base) + ${formatNumber(manaLeechBonusTotal)} (charms) = <strong>${formatNumber(manaLeechTotal)}</strong>`;
-        });
+        }
+
+        calcTotalBtn.addEventListener('click', updateTotals);
 
         // ----- Renderizar tabela -----
         function renderTable() {
@@ -929,6 +948,9 @@
 
                 tableBody.appendChild(row);
             });
+
+            // Atualiza os totais após renderizar a tabela
+            updateTotals();
         }
 
         // ----- Atualiza os campos de dano na tabela usando índices fixos -----
@@ -967,6 +989,8 @@
                 monsters[index][field] = value;
                 setCurrentMonsters(monsters);
                 updateDamageDisplays();
+                // Atualiza os totais automaticamente após qualquer alteração na tabela
+                updateTotals();
             }
         }
 
